@@ -2,7 +2,6 @@ package ws
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -343,20 +342,20 @@ func (manager *Manager) UnWsClient(c *gin.Context) {
 
 func SendGroup(msg []byte) {
 	WebsocketManager.SendGroup("leffss", []byte("{\"code\":200,\"data\":"+string(msg)+"}"))
-	fmt.Println(WebsocketManager.Info())
+	logger.Dump(WebsocketManager.Info())
 }
 
 func SendAll(msg []byte) {
 	WebsocketManager.SendAll([]byte("{\"code\":200,\"data\":" + string(msg) + "}"))
-	fmt.Println(WebsocketManager.Info())
+	logger.Dump(WebsocketManager.Info())
 }
 
 func SendOne(ctx context.Context, id string, group string, msg []byte) {
-	WebsocketManager.Send(ctx, id, group, []byte("{\"code\":200,\"data\":"+string(msg)+"}"))
-	fmt.Println(WebsocketManager.Info())
+	WebsocketManager.Send(ctx, id, group, []byte("{\"code\":200,\"data\":\""+string(msg)+"\"}"))
+	logger.Dump(WebsocketManager.Info())
 }
 
 func Logout(id string, group string) {
 	WebsocketManager.UnRegisterClient(&Client{Id: id, Group: group})
-	fmt.Println(WebsocketManager.Info())
+	logger.Dump(WebsocketManager.Info())
 }

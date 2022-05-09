@@ -53,6 +53,9 @@ func Logger() gin.HandlerFunc {
 		start := time.Now()
 		c.Next()
 
+		requestBodyLog := ""
+		bodyLog := ""
+
 		// 开始记录日志的逻辑
 		cost := time.Since(start)
 		responStatus := c.Writer.Status()
@@ -72,6 +75,9 @@ func Logger() gin.HandlerFunc {
 
 			// 响应的内容
 			logFields = append(logFields, zap.String("Response Body", w.body.String()))
+
+			requestBodyLog = string(requestBody)
+			bodyLog = w.body.String()
 		}
 
 		if responStatus > 400 && responStatus <= 499 {
@@ -85,7 +91,7 @@ func Logger() gin.HandlerFunc {
 		}
 
 		if c.Request.Method != "OPTIONS" && config.GetBool("log.enabled_db") && responStatus != 404 && c.FullPath() != "" {
-			SetDBOperaLog(c, responStatus, c.Request.RequestURI, c.Request.Method, helpers.MicrosecondsStr(cost), string(requestBody), w.body.String(), c.Errors.ByType(gin.ErrorTypePrivate).String())
+			SetDBOperaLog(c, responStatus, c.Request.RequestURI, c.Request.Method, helpers.MicrosecondsStr(cost), requestBodyLog, bodyLog, c.Errors.ByType(gin.ErrorTypePrivate).String())
 		}
 	}
 }

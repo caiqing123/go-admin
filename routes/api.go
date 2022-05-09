@@ -106,6 +106,7 @@ func RegisterAPIRoutes(r *gin.Engine) {
 
 			serve := new(controllers.ServerController)
 			authGroup.GET("/server-monitor", serve.ServerInfo)
+			authGroup.GET("/download-log", serve.DownloadLog)
 
 			job := new(controllers.JobController)
 			authGroup.GET("/job", job.Index)

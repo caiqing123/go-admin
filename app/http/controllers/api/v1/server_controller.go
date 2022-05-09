@@ -1,8 +1,12 @@
 package v1
 
 import (
+	"archive/tar"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"runtime"
 	"strconv"
 	"strings"
@@ -17,6 +21,7 @@ import (
 
 	"api/pkg/file"
 	"api/pkg/ip"
+	"api/pkg/logger"
 	"api/pkg/response"
 	"api/pkg/str"
 )
@@ -251,4 +256,66 @@ func isListContainsStr(list []string, str string) bool {
 		}
 	}
 	return false
+}
+
+//DownloadLog log文件压缩下载
+func (ctrl *ServerController) DownloadLog(c *gin.Context) {
+	date := c.DefaultQuery("date", time.Now().Format("2006-01-02"))
+
+	path, tarballName := "storage/logs/", "storage/logs/"+date+".tar.gz"
+	// 读取目录下数据和规则文件
+	files, err := ioutil.ReadDir(path)
+	logger.LogIf(err)
+
+	// 打包
+	fw, err := os.Create(tarballName)
+	logger.LogIf(err)
+
+	gw := gzip.NewWriter(fw)
+	tw := tar.NewWriter(gw)
+
+	defer func(fw *os.File, gw *gzip.Writer, tw *tar.Writer, name string) {
+		_ = tw.Close()
+		_ = gw.Close()
+		_ = fw.Close()
+		//需文件生成后才能下载
+		c.File(tarballName)
+		_ = os.Remove(name)
+	}(fw, gw, tw, tarballName)
+
+	for _, f := range files {
+		//筛选时间
+		if !strings.Contains(f.Name(), date) {
+			continue
+		}
+
+		hdr := &tar.Header{
+			Name: f.Name(),
+			Mode: 0600,
+			Size: f.Size(),
+		}
+
+		if err = tw.WriteHeader(hdr); err != nil {
+			logger.Error(err.Error())
+		}
+
+		pa := path + f.Name()
+		tf, err := ioutil.ReadFile(pa)
+		if err != nil {
+			logger.Error(err.Error())
+		}
+		if _, err = tw.Write(tf); err != nil {
+			logger.Error(err.Error())
+		}
+		err = tw.Flush()
+		logger.LogIf(err)
+	}
+
+	//设置文件类型
+	c.Header("Content-Type", "application/octet-stream")
+	c.Header("Content-Transfer-Encoding", "binary")
+	//设置文件名称File Transfer
+	c.Header("Content-Disposition", "attachment; filename="+date+".tar.gz")
+
+	return
 }

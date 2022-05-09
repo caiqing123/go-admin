@@ -3,6 +3,7 @@ package file
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"fmt"
 	"io"
@@ -149,14 +150,22 @@ func GetCurrentPath() string {
 func FileMonitoring(ctx context.Context, filePth string, id string, group string, hookfn func(context.Context, string, string, []byte)) {
 	f, err := os.Open(filePth)
 	if err != nil {
-		logger.Error(err.Error())
+		logger.Warn(err.Error())
+		//log不存在 可不执行或循环
+		//time.Sleep(1000 * time.Millisecond)
+		//FileMonitoring(ctx, filePth, id, group, hookfn)
+		return
 	}
+	//延迟 需等待websocket注册
+	time.Sleep(1000 * time.Millisecond)
 	defer func(f *os.File) {
 		_ = f.Close()
 	}(f)
 
 	rd := bufio.NewReader(f)
-	_, _ = f.Seek(0, 2)
+	//Seek将下一次读取或写入文件的偏移量设置为偏移量
+	//1直接读取全部，2只读取最新的
+	_, _ = f.Seek(0, 1)
 	for {
 		if ctx.Err() != nil {
 			break
@@ -169,6 +178,8 @@ func FileMonitoring(ctx context.Context, filePth string, id string, group string
 		} else if err != nil {
 			logger.Error(err.Error())
 		}
+		//去除换行符
+		line = bytes.TrimRight(line, "\r\n")
 		go hookfn(ctx, id, group, line)
 	}
 }
