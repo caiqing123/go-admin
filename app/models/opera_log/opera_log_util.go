@@ -56,7 +56,7 @@ func Paginate(c *gin.Context, perPage int, q interface{}) (operaLogs []OperaLog,
 	return
 }
 
-type OpLogConsumer struct {}
+type OpLogConsumer struct{}
 
 func (consumer *OpLogConsumer) Consume(delivery rmq.Delivery) {
 	var log OperaLog
@@ -67,9 +67,9 @@ func (consumer *OpLogConsumer) Consume(delivery rmq.Delivery) {
 		}
 		return
 	}
+	//todo 失败重试处理
 	log.Create()
 	if err := delivery.Ack(); err != nil {
 		// handle ack error
 	}
 }
-

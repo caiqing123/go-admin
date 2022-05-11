@@ -31,5 +31,10 @@ func SetupRedis() {
 		//添加操作log消费处理
 		err := queue.Queue.Consumers(&opera_log.OpLogConsumer{}, "oplog")
 		logger.LogIf(err)
+	} else {
+		queue.ConnectNsq("queue")
+		//添加消费处理
+		queue.QueueFile.Handler("oplog", queue.Oplog)
+		queue.QueueFile.Start()
 	}
 }

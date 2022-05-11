@@ -139,7 +139,6 @@ func SetDBOperaLog(c *gin.Context, statusCode int, reqUri string, reqMethod stri
 			logger.Error(fmt.Sprintf("publish data error:%s", err.Error()))
 		}
 	} else {
-		log.Create()
+		queue.Producers(log, "oplog")
 	}
-
 }

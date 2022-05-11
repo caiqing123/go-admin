@@ -14,6 +14,7 @@ require (
 	github.com/iancoleman/strcase v0.2.0
 	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
 	github.com/mojocn/base64Captcha v1.3.5
+	github.com/nsqio/go-diskqueue v1.1.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/cobra v1.3.0
