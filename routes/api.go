@@ -23,8 +23,11 @@ func RegisterAPIRoutes(r *gin.Engine) {
 		wss.GET("/ws/:channel", ws.WebsocketManager.WsClient)
 		wss.GET("/wslogout/:channel", ws.WebsocketManager.UnWsClient)
 	}
-	v1.GET("/demo", func(context *gin.Context) {
-	})
+
+	// 娱乐
+	entertainment := new(controllers.EntertainmentController)
+	v1.GET("/music", entertainment.Music)
+	v1.GET("/download", entertainment.Download)
 
 	// 全局限流中间件：这里是所有 API （根据 IP）请求加起来。
 	v1.Use(middlewares.LimitIP(limiter.Limiter("2000-M")))
