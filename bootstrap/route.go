@@ -75,10 +75,21 @@ func setup404Handler(router *gin.Engine) {
 		// 获取标头信息的 Accept 信息
 		acceptString := c.Request.Header.Get("Accept")
 		if strings.Contains(acceptString, "text/html") {
-			// 静态页面路由直接到首页
-			c.Redirect(http.StatusMovedPermanently, "/")
-			// 如果是 HTML 的话
-			//c.String(http.StatusNotFound, "404")
+			//处理前端路由404
+			statikFS, err := fs.New()
+			content, err := fs.ReadFile(statikFS, "/index.html")
+			if (err) != nil {
+				c.String(http.StatusNotFound, "404")
+				return
+			}
+			c.Writer.WriteHeader(200)
+			c.Writer.Header().Add("Accept", "text/html")
+			_, err = c.Writer.Write((content))
+			if err != nil {
+				c.String(http.StatusNotFound, "404")
+				return
+			}
+			c.Writer.Flush()
 		} else {
 			// 默认返回 JSON
 			c.JSON(http.StatusNotFound, gin.H{
