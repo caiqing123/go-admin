@@ -49,16 +49,16 @@ func Migu(songName string) (ret []music.Result, err error) {
 
 	if info.Code == "000000" && len(info.SongResultData.Result) > 0 {
 		for index, result := range info.SongResultData.Result {
-			option := result.NewRateFormats[len(result.NewRateFormats)-1]
-			pathname := &url.URL{}
-			if option.AndroidURL != "" {
-				pathname, err = url.Parse(option.AndroidURL)
-			} else {
-				pathname, err = url.Parse(option.URL)
-
+			list := make(map[int]string)
+			for i, v := range result.NewRateFormats {
+				if v.FileType == "mp3" {
+					list[i] = v.URL
+				}
 			}
+			option := list[len(list)-1]
+			pathname := &url.URL{}
+			pathname, err = url.Parse(option)
 			downloadUrl := "https://freetyst.nf.migu.cn/" + pathname.Path
-
 			ret = append(ret, music.Result{Title: strconv.Itoa(index+1) + ". " + result.Name + " - [ " + result.Singers[0].Name + " ]", Author: result.Singers[0].Name,
 				SongName: result.Name,
 				SongURL:  downloadUrl})

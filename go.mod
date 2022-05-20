@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/KenmyZhang/aliyun-communicate v0.0.0-20180308134849-7997edc57454
+	github.com/antchfx/htmlquery v1.2.4
 	github.com/bxcodec/faker/v3 v3.7.0
 	github.com/disintegration/imaging v1.6.2
 	github.com/gertd/go-pluralize v0.1.7
@@ -23,6 +24,8 @@ require (
 	github.com/ulule/limiter/v3 v3.9.0
 	go.uber.org/zap v1.20.0
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2
+	golang.org/x/text v0.3.7
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gorm.io/driver/mysql v1.2.3
 	gorm.io/driver/sqlite v1.2.6
@@ -30,6 +33,7 @@ require (
 )
 
 require (
+	github.com/antchfx/xpath v1.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
@@ -40,6 +44,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.1.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
@@ -76,8 +81,6 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/image v0.0.0-20210220032944-ac19c3e999fb // indirect
-	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
-	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect

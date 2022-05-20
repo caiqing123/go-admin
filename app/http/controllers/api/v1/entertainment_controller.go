@@ -1,8 +1,10 @@
 package v1
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -91,7 +93,7 @@ func (ctrl *BaseAPIController) Download(c *gin.Context) {
 		return
 	}
 	defer resp.Body.Close()
-	w.Header().Add("Content-Disposition", "attachment; filename="+name)
+	w.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename*=UTF-8''%s", url.PathEscape(name)))
 	data, _ := ioutil.ReadAll(resp.Body)
 	w.Write(data)
 	c.Abort()
