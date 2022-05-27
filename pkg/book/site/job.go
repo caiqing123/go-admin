@@ -1,8 +1,11 @@
 package site
 
 import (
+	"context"
+	"fmt"
 	"io"
 	"log"
+	"strconv"
 	"sync"
 	"time"
 
@@ -141,6 +144,81 @@ func Download(chapter *store.Store) {
 					} else {
 						log.Printf("Job Error: %s", err)
 					}
+				}
+			}
+		}
+		close(Jobch)
+	}
+}
+
+func DownloadWs(chapter *store.Store, ctx context.Context, id string, group string, hookfn func(context.Context, string, string, []byte)) {
+	ssss := &SyncStore{
+		Store: chapter,
+	}
+	ssss.Init()
+	var threadNum = 10
+	var chCount = 0
+	var isDone = 0
+	for _, v := range chapter.Volumes {
+		chCount += len(v.Chapters)
+		for _, v2 := range v.Chapters {
+			if len(v2.Text) != 0 {
+				isDone++
+			}
+		}
+	}
+
+	src := `{"progress":"%v","type":"progress","book_id":"` + chapter.BookName + "_" + id + `"}`
+
+	if isDone != 0 {
+		hookfn(ctx, id, group, []byte(fmt.Sprintf(src, "100")))
+		log.Printf("[读入] 已缓存:%d", isDone)
+	}
+
+	// End Print
+	defer func(s *store.Store) {
+		var chCount = 0
+		var isDone = 0
+		for _, v := range chapter.Volumes {
+			chCount += len(v.Chapters)
+			for _, v2 := range v.Chapters {
+				if len(v2.Text) != 0 {
+					isDone++
+				}
+			}
+		}
+		if isDone != 0 {
+			log.Printf("[爬取结束] 已缓存:%d", isDone)
+		}
+	}(chapter)
+
+	if isDone < chCount {
+		progress := 0
+		hookfn(ctx, id, group, []byte(fmt.Sprintf(src, "0")))
+		Jobch := make(chan error)
+		for i := 0; i < threadNum; i++ {
+			go Job(ssss, Jobch)
+		}
+
+		var ii = 0
+	AA:
+		for {
+			select {
+			case err := <-Jobch:
+				if err != nil {
+					if err == io.EOF {
+						ii++
+						if ii >= threadNum {
+							hookfn(ctx, id, group, []byte(fmt.Sprintf(src, "100")))
+							log.Printf("缓存完成")
+							break AA
+						}
+					} else {
+						log.Printf("Job Error: %s", err)
+					}
+				} else {
+					progress++
+					go hookfn(ctx, id, group, []byte(fmt.Sprintf(src, strconv.FormatFloat(float64(float32(progress)/float32(len(chapter.Volumes[0].Chapters))*100), 'f', 10, 32))))
 				}
 			}
 		}

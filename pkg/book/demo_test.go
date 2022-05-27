@@ -3,6 +3,7 @@ package book
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"api/pkg/book/site"
 	"api/pkg/book/store"
@@ -18,22 +19,22 @@ func TestDemoSearch(t *testing.T) {
 	//	if s.Search == nil {
 	//		continue
 	//	}
-	//	result, err := s.Search("诡秘")
+	//	result, err := s.Search("搜")
 	//	fmt.Println(err)
 	//	fmt.Println(result)
+	//
 	//}
 
 	//详情
-	result, err := site.BookInfo("https://www.qb5.la/book_13659/")
+	result, err := site.BookInfo("http://www.b520.cc/12_12376/")
+	//fmt.Println(result)
 	fmt.Println(err)
-	fmt.Println(result)
 
 	//目录详情
 	//result, err := site.Chapter("https://segmentfault.com/a/1190000023240989")
 	//fmt.Println(err)
 	//fmt.Println(result)
 
-	//2m
 	//保存txt
 	//for k, v := range result.Volumes {
 	//	for k1, v1 := range v.Chapters {
@@ -41,9 +42,12 @@ func TestDemoSearch(t *testing.T) {
 	//	}
 	//}
 
-	//保存txt 14s
+	//保存txt
 	site.Download(result)
-	err = store.Conv(*result, "demo.txt")
+	start := time.Now()
+	//err = store.Conv(*result, "demo.txt")
+	err = store.EPUBConv(*result, "demo.epub")
+	fmt.Println(time.Since(start))
 	fmt.Println(err)
 
 	//多个并发处理

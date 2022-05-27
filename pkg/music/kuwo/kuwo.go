@@ -68,14 +68,7 @@ func getPlayURL(rid int) (playURL string, err error) {
 	}
 	for _, format := range formats {
 		u := fmt.Sprintf("https://www.kuwo.cn/api/v1/www/music/playUrl?format=mp3&mid=%d&type=convert_url3&br=%s", rid, format)
-		req, _ := http.NewRequest("GET", u, nil)
-		resp, err := client.Do(req)
-		if err != nil {
-			continue
-		}
-		defer resp.Body.Close()
-
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := get(client, u)
 		if err != nil {
 			continue
 		}
@@ -89,4 +82,19 @@ func getPlayURL(rid int) (playURL string, err error) {
 		}
 	}
 	return "", fmt.Errorf("获取歌曲链接失败")
+}
+
+func get(client *http.Client, u string) (body []byte, err error) {
+	req, _ := http.NewRequest("GET", u, nil)
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
 }

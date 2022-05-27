@@ -153,7 +153,12 @@ func BookInfo(BookURL string) (s *store.Store, err error) {
 		chapter.CoverURL = resp.Request.URL.ResolveReference(CoverURL).String()
 	}
 
-	if len(chapter.Volumes) == 0 {
+	if chapter.DownloadURL != "" {
+		DownloadURL, _ := url.Parse(chapter.DownloadURL)
+		chapter.DownloadURL = resp.Request.URL.ResolveReference(DownloadURL).String()
+	}
+
+	if len(chapter.Volumes) == 0 && chapter.DownloadURL == "" {
 		return nil, fmt.Errorf("not match volumes")
 	}
 	return chapter, err
@@ -272,7 +277,7 @@ func Type1SearchAfter(
 	}
 }
 
-func Type1BookInfo(nameExpr, coverExpr, authorExpr, chapterExpr, DownloadExpr, DescriptionExpr string) func(body io.Reader) (s *store.Store, err error) {
+func Type1BookInfo(nameExpr, coverExpr, authorExpr, chapterExpr, DownloadExpr, DescriptionExpr string, after func(r *store.Store) *store.Store) func(body io.Reader) (s *store.Store, err error) {
 	return func(body io.Reader) (s *store.Store, err error) {
 		doc, err := htmlquery.Parse(body)
 		if err != nil {
@@ -294,7 +299,7 @@ func Type1BookInfo(nameExpr, coverExpr, authorExpr, chapterExpr, DownloadExpr, D
 				err = fmt.Errorf("no matching cover")
 				return
 			}
-			if cu, err := url.Parse(strings.TrimSpace(htmlquery.InnerText(coverNode))); err != nil {
+			if cu, err := url.Parse(strings.TrimSpace(htmlquery.SelectAttr(coverNode, "src"))); err != nil {
 				log.Printf("Cover Image URL Error:" + err.Error())
 			} else {
 				s.CoverURL = cu.String()
@@ -316,7 +321,8 @@ func Type1BookInfo(nameExpr, coverExpr, authorExpr, chapterExpr, DownloadExpr, D
 				err = fmt.Errorf("no matching downloadContent")
 				return
 			}
-			s.DownloadURL = htmlquery.InnerText(downloadContent)
+			u1, _ := url.Parse(htmlquery.SelectAttr(downloadContent, "href"))
+			s.DownloadURL = u1.String()
 		}
 
 		if DescriptionExpr != "" {
@@ -330,27 +336,32 @@ func Type1BookInfo(nameExpr, coverExpr, authorExpr, chapterExpr, DownloadExpr, D
 		}
 
 		// Contents
-		nodeContent := htmlquery.Find(doc, chapterExpr)
-		if len(nodeContent) == 0 {
-			err = fmt.Errorf("no matching contents")
-			return
-		}
-
-		var vol = store.Volume{
-			Name:     "正文",
-			Chapters: make([]store.Chapter, 0),
-		}
-		for _, v := range nodeContent {
-			chapterURL, err := url.Parse(htmlquery.SelectAttr(v, "href"))
-			if err != nil {
-				return nil, err
+		if chapterExpr != "" {
+			nodeContent := htmlquery.Find(doc, chapterExpr)
+			if len(nodeContent) == 0 && s.DownloadURL == "" {
+				err = fmt.Errorf("no matching contents")
+				return
 			}
-			vol.Chapters = append(vol.Chapters, store.Chapter{
-				Name: strings.TrimSpace(htmlquery.InnerText(v)),
-				URL:  chapterURL.String(),
-			})
+
+			var vol = store.Volume{
+				Name:     "正文",
+				Chapters: make([]store.Chapter, 0),
+			}
+			for _, v := range nodeContent {
+				chapterURL, err := url.Parse(htmlquery.SelectAttr(v, "href"))
+				if err != nil {
+					return nil, err
+				}
+				vol.Chapters = append(vol.Chapters, store.Chapter{
+					Name: strings.TrimSpace(htmlquery.InnerText(v)),
+					URL:  chapterURL.String(),
+				})
+			}
+			s.Volumes = append(s.Volumes, vol)
 		}
-		s.Volumes = append(s.Volumes, vol)
+		if after != nil {
+			s = after(s)
+		}
 
 		return
 	}
@@ -359,6 +370,9 @@ func Type1BookInfo(nameExpr, coverExpr, authorExpr, chapterExpr, DownloadExpr, D
 // Type1Chapter 章节段落匹配
 func Type1Chapter(expr string) func(ctx context.Context) (content []string, err error) {
 	return func(ctx context.Context) (content []string, err error) {
+		if expr == "" {
+			return
+		}
 		doc, err := htmlquery.Parse(ctx.Value("body").(io.Reader))
 		if err != nil {
 			return nil, err
@@ -420,7 +434,6 @@ func Type2Chapter(
 				}
 				MM = append(MM, t)
 			}
-			return MM, nil
 			M = append(M, block(MM)...)
 
 			if next == nil {

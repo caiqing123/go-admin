@@ -2,14 +2,17 @@ package ws
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"sync"
 	"time"
 
+	"github.com/chenhg5/collection"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 
 	controllers "api/app/http/controllers/api/v1"
+	"api/pkg/book"
 	"api/pkg/file"
 	"api/pkg/jwt"
 	"api/pkg/logger"
@@ -54,6 +57,12 @@ type BroadCastMessageData struct {
 	Message []byte
 }
 
+//RequestParameters 请求参数
+type RequestParameters struct {
+	Group      string            `json:"group"`
+	Parameters map[string]string `json:"parameters"`
+}
+
 // 读信息，从 websocket 连接直接读取数据
 func (c *Client) Read(cxt context.Context) {
 	defer func(cxt context.Context) {
@@ -71,6 +80,14 @@ func (c *Client) Read(cxt context.Context) {
 		messageType, message, err := c.Socket.ReadMessage()
 		if err != nil || messageType == websocket.CloseMessage {
 			break
+		}
+		content := &RequestParameters{}
+		if err = json.Unmarshal(message, &content); err == nil {
+			if content.Group == "book" {
+				if content.Parameters["url"] != "" {
+					book.Download(cxt, content.Parameters["url"], c.Id, c.Group, SendOne)
+				}
+			}
 		}
 		logger.Printf("client [%s] receive message: %s", c.Id, string(message))
 		c.Message <- message
@@ -275,6 +292,8 @@ var WebsocketManager = Manager{
 	clientCount:      0,
 }
 
+var typeWhitelist = []string{"book"}
+
 // WsClient gin 处理 websocket handler
 func (manager *Manager) WsClient(c *gin.Context) {
 
@@ -288,27 +307,33 @@ func (manager *Manager) WsClient(c *gin.Context) {
 		// 处理 Sec-WebSocket-Protocol Header
 		Subprotocols: []string{c.GetHeader("Sec-WebSocket-Protocol")},
 	}
-
+	channel := c.Param("channel")
 	conn, err := upGrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		cancel()
-		logger.Printf("websocket connect error: %s", c.Param("channel"))
+		logger.Printf("websocket connect error: %s", channel)
 		return
 	}
 
-	claims, err := jwt.NewJWT().WsParserToken(c.Query("token"))
-
-	// JWT 解析失败，有错误发生
-	if err != nil {
-		cancel()
-		logger.Printf("tokenerror: %s", c.Query("token"))
-		_ = conn.Close()
-		return
+	token := c.Query("token")
+	var claims *jwt.JWTCustomClaims
+	if !collection.Collect(typeWhitelist).Contains(channel) {
+		claims, err = jwt.NewJWT().WsParserToken(token)
+		// JWT 解析失败，有错误发生
+		if err != nil {
+			cancel()
+			logger.Printf("tokenerror: %s", token)
+			_ = conn.Close()
+			return
+		}
 	}
-
+	userId := token
+	if claims != nil {
+		userId = claims.UserID
+	}
 	client := &Client{
-		Id:         claims.UserID,
-		Group:      c.Param("channel"),
+		Id:         userId,
+		Group:      channel,
 		Context:    ctx,
 		CancelFunc: cancel,
 		Socket:     conn,
@@ -318,19 +343,27 @@ func (manager *Manager) WsClient(c *gin.Context) {
 	manager.RegisterClient(client)
 	go client.Read(ctx)
 	go client.Write(ctx)
-	if c.Param("channel") == "cron" {
-		file.FileMonitoring(ctx, "storage/cron/"+time.Now().Format("2006-01-02.log"), claims.UserID, c.Param("channel"), SendOne)
+	if channel == "cron" {
+		file.FileMonitoring(ctx, "storage/cron/"+time.Now().Format("2006-01-02.log"), userId, channel, SendOne)
 	}
 }
 
 func (manager *Manager) UnWsClient(c *gin.Context) {
-	claims, err := jwt.NewJWT().WsParserToken(c.Query("token"))
-	if err != nil {
-		response.NormalVerificationError(c, "退出失败")
-		return
-	}
-	id := claims.UserID
+	token := c.Query("token")
 	group := c.Param("channel")
+	var claims *jwt.JWTCustomClaims
+	if !collection.Collect(typeWhitelist).Contains(group) {
+		err := error(nil)
+		claims, err = jwt.NewJWT().WsParserToken(c.Query("token"))
+		if err != nil {
+			response.NormalVerificationError(c, "退出失败")
+			return
+		}
+	}
+	id := token
+	if claims != nil {
+		id = claims.UserID
+	}
 	Logout(id, group)
 	c.Set("result", "ws close success")
 	c.JSON(http.StatusOK, gin.H{
@@ -351,7 +384,7 @@ func SendAll(msg []byte) {
 }
 
 func SendOne(ctx context.Context, id string, group string, msg []byte) {
-	WebsocketManager.Send(ctx, id, group, []byte("{\"code\":200,\"data\":\""+string(msg)+"\"}"))
+	WebsocketManager.Send(ctx, id, group, []byte("{\"code\":200,\"data\":"+string(msg)+"}"))
 	logger.Dump(WebsocketManager.Info())
 }
 

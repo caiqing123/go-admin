@@ -9,6 +9,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"api/pkg/book"
+	"api/pkg/book/site"
+	"api/pkg/file"
 	"api/pkg/logger"
 	"api/pkg/music"
 	"api/pkg/music/kugou"
@@ -23,12 +26,16 @@ type EntertainmentController struct {
 	BaseAPIController
 }
 
+func init() {
+	book.InitSites()
+}
+
 // Music 音乐
 func (ctrl *BaseAPIController) Music(c *gin.Context) {
 	option := c.Query("option")
 	name := c.Query("name")
 	if len(strings.TrimSpace(name)) == 0 {
-		response.Abort500(c, "缺少参数")
+		response.NormalVerificationError(c, "缺少参数")
 		return
 	}
 
@@ -45,7 +52,7 @@ func (ctrl *BaseAPIController) Music(c *gin.Context) {
 	case "kuwo":
 		sourcer = kuwo.Kuwo
 	default:
-		response.Abort500(c, "无效的参数")
+		response.NormalVerificationError(c, "无效的参数")
 		return
 	}
 	ret, err := sourcer(name)
@@ -59,6 +66,56 @@ func (ctrl *BaseAPIController) Music(c *gin.Context) {
 	})
 }
 
+// Book 阅读
+func (ctrl *BaseAPIController) Book(c *gin.Context) {
+	name := c.Query("name")
+	if len(strings.TrimSpace(name)) == 0 {
+		response.NormalVerificationError(c, "缺少参数")
+		return
+	}
+	var list = make(map[string][]site.ChapterSearchResult)
+	for _, s := range site.SitePool {
+		if s.Search == nil {
+			continue
+		}
+		result, err := s.Search(name)
+		if err != nil {
+			logger.Error(err.Error())
+			continue
+		}
+		list[s.Name] = result
+	}
+	response.JSON(c, gin.H{
+		"data": list,
+	})
+}
+
+//BookInfo 详情
+func (ctrl *BaseAPIController) BookInfo(c *gin.Context) {
+	bookUrl := c.Query("url")
+	visitorId := c.Query("visitorId")
+	if len(strings.TrimSpace(bookUrl)) == 0 {
+		response.NormalVerificationError(c, "缺少参数")
+		return
+	}
+	result, err := site.BookInfo(bookUrl)
+	if err != nil {
+		logger.Error(err.Error())
+		response.Abort500(c, "出错")
+		return
+	}
+	if result.DownloadURL == "" {
+		fileSrc := "public/uploads/book/" + result.BookName + "_" + visitorId + ".txt"
+		if !file.CheckExist(fileSrc) {
+			result.DownloadURL = "/uploads/book/" + result.BookName + "_" + visitorId + ".txt"
+		}
+	}
+	response.JSON(c, gin.H{
+		"data": result,
+	})
+}
+
+// Download 下载
 func (ctrl *BaseAPIController) Download(c *gin.Context) {
 	url1 := c.Query("url")
 	name := c.DefaultQuery("name", "download")

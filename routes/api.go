@@ -27,6 +27,8 @@ func RegisterAPIRoutes(r *gin.Engine) {
 	// 娱乐
 	entertainment := new(controllers.EntertainmentController)
 	v1.GET("/music", entertainment.Music)
+	v1.GET("/book", entertainment.Book)
+	v1.GET("/book_info", entertainment.BookInfo)
 	v1.GET("/download", entertainment.Download)
 
 	// 全局限流中间件：这里是所有 API （根据 IP）请求加起来。

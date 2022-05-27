@@ -23,7 +23,9 @@ func Site() site.SiteA {
 			`//*[@id="info"]/h1/small/a/text()`,
 			`//div[@class="zjbox"]/dl[@class="zjlist"]/dd/a`,
 			``,
-			`//div[@id='intro']`),
+			`//div[@id='intro']`,
+			nil,
+		),
 		Chapter: site.Type1Chapter(`//*[@id="content"]/text()`),
 		Search: site.Type1SearchAfter(
 			func(s string) *http.Request {
@@ -34,7 +36,7 @@ func Site() site.SiteA {
 				value := baseurl.Query()
 				value.Add("searchtype", "all")
 				value.Add("searchkey", utils.U8ToGBK(s))
-				value.Add("sbt", utils.U8ToGBK("搜索"))
+				value.Add("action", "login")
 				baseurl.RawQuery = value.Encode()
 
 				req, err := http.NewRequest("GET", baseurl.String(), nil)

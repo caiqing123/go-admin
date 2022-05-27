@@ -84,7 +84,7 @@ func setup404Handler(router *gin.Engine) {
 			}
 			c.Writer.WriteHeader(200)
 			c.Writer.Header().Add("Accept", "text/html")
-			_, err = c.Writer.Write((content))
+			_, err = c.Writer.Write(content)
 			if err != nil {
 				c.String(http.StatusNotFound, "404")
 				return
