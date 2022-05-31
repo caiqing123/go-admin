@@ -21,7 +21,7 @@ Available Commands:
   make        Generate file and code
   make        Generate file and code
   migrate     Run database migration
-  play        Likes the Go Playground, but running at our application context
+  init        Initialize the database.
   seed        Insert fake data to the database
   serve       Start web server
 
@@ -105,3 +105,8 @@ setsid ./main
 ```
 
 mysql 5.7
+
+win运行
+修改.env配置
+./main.exe init
+./main.exe

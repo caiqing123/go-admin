@@ -93,7 +93,9 @@ LOOP:
 }
 
 func Setup() {
-
+	if !database.DB.Migrator().HasTable("jobs") {
+		return
+	}
 	jobList := job.GetList()
 	if len(jobList) == 0 {
 		logger.Printf("JobCore total:0")

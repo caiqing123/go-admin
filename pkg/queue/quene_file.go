@@ -37,6 +37,7 @@ func Oplog(job *job.Job) {
 		return
 	}
 	log.Create()
+	//添加失败重新执行
 	if log.ID <= 0 {
 		Producers(log, "oplog")
 	}

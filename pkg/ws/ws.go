@@ -87,6 +87,9 @@ func (c *Client) Read(cxt context.Context) {
 				if content.Parameters["url"] != "" {
 					book.Download(cxt, content.Parameters["url"], c.Id, c.Group, SendOne)
 				}
+				if content.Parameters["log"] != "" {
+					book.DownloadLog(cxt, content.Parameters["log"], c.Id, c.Group, SendOne)
+				}
 			}
 		}
 		logger.Printf("client [%s] receive message: %s", c.Id, string(message))

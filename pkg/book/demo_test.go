@@ -55,7 +55,7 @@ func TestDemoSearch(t *testing.T) {
 	//url[0] = "https://www.qb5.la/book_13659/"
 	//url[1] = "https://www.qb5.la/book_37141/"
 	//url[2] = "https://www.qb5.la/book_85367/"
-	////保存txt 14s
+	//保存txt
 	//for i := 0; i < 3; i++ {
 	//	go func(a int) {
 	//		fmt.Println(a)

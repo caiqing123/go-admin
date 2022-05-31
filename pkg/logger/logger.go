@@ -33,6 +33,12 @@ func InitLogger(filename string, maxSize, maxBackup, maxAge int, compress bool, 
 	// 初始化 core
 	core := zapcore.NewCore(getEncoder(), writeSyncer, logLevel)
 
+	////记录日志回调处理
+	//f := func(e zapcore.Entry) error {
+	//	return nil
+	//}
+	//core = zapcore.RegisterHooks(core, f)
+
 	// 初始化 Logger
 	Logger = zap.New(core,
 		zap.AddCaller(),                   // 调用文件和行号，内部使用 runtime.Caller
@@ -116,9 +122,9 @@ func Dump(value interface{}, msg ...string) {
 	valueString := jsonString(value)
 	// 判断第二个参数是否传参 msg
 	if len(msg) > 0 {
-		Logger.Warn("Dump", zap.String(msg[0], valueString))
+		Logger.Info("Dump", zap.String(msg[0], valueString))
 	} else {
-		Logger.Warn("Dump", zap.String("data", valueString))
+		Logger.Info("Dump", zap.String("data", valueString))
 	}
 }
 
@@ -143,7 +149,7 @@ func LogInfoIf(err error) {
 	}
 }
 
-func Printf(format string, v ...interface{})  {
+func Printf(format string, v ...interface{}) {
 	Logger.Info(fmt.Sprintf(format, v...))
 }
 
