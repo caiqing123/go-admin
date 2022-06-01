@@ -6,6 +6,7 @@ import (
 	"github.com/robfig/cron/v3"
 
 	"api/app/models/job"
+	"api/pkg/console"
 	"api/pkg/database"
 	"api/pkg/file"
 	"api/pkg/http"
@@ -94,6 +95,7 @@ LOOP:
 
 func Setup() {
 	if !database.DB.Migrator().HasTable("jobs") {
+		console.Error("数据库未初始化 请先执行 ./main init")
 		return
 	}
 	jobList := job.GetList()

@@ -20,7 +20,7 @@ func init() {
 			// "daily" 按照日期每日一个
 			"type": config.Env("LOG_TYPE", "single"),
 
-			// 数据库日志开关
+			// 记录操作日志开关
 			"enabled_db": config.Env("LOG_DB", true),
 			/* ------------------ 滚动日志配置 ------------------ */
 			// 日志文件路径

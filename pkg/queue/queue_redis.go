@@ -94,7 +94,7 @@ func (que QueueClient) Producers(task interface{}, name string) error {
 //Consumers 消费
 func (que QueueClient) Consumers(taskConsumer rmq.Consumer, name string) error {
 	q, err := que.Client.OpenQueue(name)
-	err = q.StartConsuming(20, time.Second)
+	err = q.StartConsuming(20, time.Millisecond)
 	_, err = q.AddConsumer("task-consumer", taskConsumer)
 	return err
 }

@@ -24,6 +24,12 @@ func RegisterAPIRoutes(r *gin.Engine) {
 		wss.GET("/wslogout/:channel", ws.WebsocketManager.UnWsClient)
 	}
 
+	v1.GET("/version", func(context *gin.Context) {
+		context.JSON(200, gin.H{
+			"version": "1.0.0",
+		})
+	})
+
 	// 娱乐
 	entertainment := new(controllers.EntertainmentController)
 	v1.GET("/music", entertainment.Music)
