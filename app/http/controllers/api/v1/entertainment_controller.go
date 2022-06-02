@@ -83,6 +83,9 @@ func (ctrl *BaseAPIController) Book(c *gin.Context) {
 			logger.Error(err.Error())
 			continue
 		}
+		if len(result) == 0 {
+			continue
+		}
 		list[s.Name] = result
 	}
 	response.JSON(c, gin.H{

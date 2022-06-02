@@ -70,11 +70,11 @@ func Site() site.SiteA {
 					}
 				}
 				if len(captcha) != 4 {
-					fmt.Println("验证码识别错误" + (captcha))
+					//fmt.Println("验证码识别错误" + (captcha))
 					return nil
 				}
-				fmt.Println("原验证码" + (captcha))
-				fmt.Println("验证码" + strings.ToLower(captcha))
+				//fmt.Println("原验证码" + (captcha))
+				//fmt.Println("验证码" + strings.ToLower(captcha))
 
 				value := baseurl.Query()
 				value.Add("searchkey", utils.U8ToGBK(s))

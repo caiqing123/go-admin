@@ -64,9 +64,9 @@ func Request(ocr OcrMethodData, img []byte) (*http.Response, error) {
 
 	data := base64.StdEncoding.EncodeToString(img)
 	params["ImageBase64"] = data
-
 	client := &http.Client{}
 	js, _ := json.Marshal(params)
+	//fmt.Printf("params: %s\n\n", string(js))
 	req, _ := http.NewRequest(http.MethodPost, RequestUrl, bytes.NewReader(js))
 	req.Header = getHeader(js, ocr.Name, ocr.Version)
 	return client.Do(req)

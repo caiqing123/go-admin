@@ -17,8 +17,8 @@ func GetLocation(ip string) string {
 	if ip == "127.0.0.1" || ip == "localhost" {
 		return "内部IP"
 	}
-	key := ""
-	url := "https://restapi.amap.com/v5/ip?ip=" + ip + "&type=4&key=" + key
+	key := "d3af6d5474dea1410b613a1f4e223e8b"
+	url := "https://restapi.amap.com/v3/ip?ip=" + ip + "&key=" + key
 	fmt.Println("url", url)
 	resp, err := http.Get(url)
 	if err != nil {

@@ -85,6 +85,7 @@ Use " migrate [command] --help" for more information about a command.
 ```
 
 打包：
+win 执行 build.bat
 
 ```
 go build main.go
@@ -92,7 +93,7 @@ go build -ldflags="-s -w" main.go  //-s：忽略符号表和调试信息。 -w�
 upx -9 main.exe //upx 压缩包大小
 
 cd到main.go所在目录，执行命令：
-SET CGO_ENABLED=0
+set CGO_ENABLED=0
 set GOARCH=amd64
 set GOOS=linux
 go build main.go
@@ -104,7 +105,8 @@ go build main.go
 setsid ./main
 ```
 
-mysql 5.7
+mysql 5.5 - 5.6 字符集utf8
+mysql 5.7  字符集才可设置 utf8mb4
 
 win运行
 修改.env配置
