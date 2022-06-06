@@ -112,3 +112,5 @@ win运行
 修改.env配置
 ./main.exe init
 ./main.exe
+
+tar -czvf ./windows-amd64-app.tar.gz app.exe

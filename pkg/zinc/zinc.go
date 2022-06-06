@@ -82,7 +82,7 @@ type IndexResultS struct {
 	StorageSize int         `json:"storage_size"`
 }
 
-// 创建索引
+// CreateIndex 创建索引
 func (c *ZincClient) CreateIndex(name string, p *ZincIndexProperty) bool {
 	data := &ZincIndex{
 		Name:        name,
@@ -102,7 +102,7 @@ func (c *ZincClient) CreateIndex(name string, p *ZincIndexProperty) bool {
 	return true
 }
 
-// 检查索引是否存在
+// ExistIndex 检查索引是否存在
 func (c *ZincClient) ExistIndex(name string) bool {
 	resp, err := c.request("GET", "/api/index", nil)
 	if err != nil {
@@ -122,7 +122,7 @@ func (c *ZincClient) ExistIndex(name string) bool {
 	return false
 }
 
-// 新增/更新文档
+// PutDoc 新增/更新文档
 func (c *ZincClient) PutDoc(name string, id int64, doc interface{}) (bool, error) {
 	prtBodyBytes, err := json.MarshalIndent(doc, "", "   ")
 	if err != nil {
@@ -136,7 +136,7 @@ func (c *ZincClient) PutDoc(name string, id int64, doc interface{}) (bool, error
 	return true, nil
 }
 
-// 批量新增文档 日志使用
+// BulkPutLogDoc 批量新增文档 日志使用
 func (c *ZincClient) BulkPutLogDoc(docs []map[string]interface{}) (bool, error) {
 	dataStr := ""
 	for _, doc := range docs {
@@ -153,7 +153,7 @@ func (c *ZincClient) BulkPutLogDoc(docs []map[string]interface{}) (bool, error) 
 	return true, nil
 }
 
-// 批量新增文档
+// BulkPushDoc 批量新增文档
 func (c *ZincClient) BulkPushDoc(docs []map[string]interface{}) (bool, error) {
 	dataStr := ""
 	for _, doc := range docs {

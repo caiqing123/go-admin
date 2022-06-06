@@ -145,7 +145,7 @@ func getAuth(tm time.Time, payload []byte) string {
 	return auth
 }
 
-// 哈希256摘要
+// 哈希256加密
 func hmac256Secret(key []byte, content string) []byte {
 	mac := hmac.New(sha256.New, key)
 	mac.Write([]byte(content))

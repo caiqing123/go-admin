@@ -24,7 +24,7 @@ func RegisterAPIRoutes(r *gin.Engine) {
 		wss.GET("/wslogout/:channel", ws.WebsocketManager.UnWsClient)
 	}
 
-	v1.GET("/version", func(context *gin.Context) {
+	v1.GET("/version", middlewares.LimitIP(limiter.Limiter("100-M")), func(context *gin.Context) {
 		context.JSON(200, gin.H{
 			"version": "1.0.0",
 		})
@@ -32,10 +32,10 @@ func RegisterAPIRoutes(r *gin.Engine) {
 
 	// 娱乐
 	entertainment := new(controllers.EntertainmentController)
-	v1.GET("/music", entertainment.Music)
-	v1.GET("/book", entertainment.Book)
-	v1.GET("/book_info", entertainment.BookInfo)
-	v1.GET("/download", entertainment.Download)
+	v1.GET("/music", middlewares.LimitIP(limiter.Limiter("80-M")), entertainment.Music)
+	v1.GET("/book", middlewares.LimitIP(limiter.Limiter("80-M")), entertainment.Book)
+	v1.GET("/book_info", middlewares.LimitIP(limiter.Limiter("80-M")), entertainment.BookInfo)
+	v1.GET("/download", middlewares.LimitIP(limiter.Limiter("100-M")), entertainment.Download)
 
 	// 全局限流中间件：这里是所有 API （根据 IP）请求加起来。
 	v1.Use(middlewares.LimitIP(limiter.Limiter("2000-M")))

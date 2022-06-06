@@ -20,7 +20,7 @@ const (
 	pass = "h2JCL5B8orwu7N0"
 )
 
-var token = ""
+var token = interface{}("")
 
 type CrsResult struct {
 	CsrCode string `json:"csr_code"`
@@ -38,11 +38,11 @@ type ProductsSLL struct {
 }
 
 func VerificationToken() {
-	//token = cache.Cache.Store.Get("ssl_token")
+	//token = cache.Get("ssl_token")
 	token = "37eaeeb577f48f3733c3799d64fa939f61e79d19"
 	if token == "" {
 		token = getAuth()
-		cache.Cache.Store.Set("ssl_token", token, 364*(time.Hour*24))
+		cache.Set("ssl_token", token, 364*(time.Hour*24))
 	}
 }
 

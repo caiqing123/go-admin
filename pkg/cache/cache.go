@@ -3,6 +3,7 @@ package cache
 
 import (
 	"encoding/json"
+	"reflect"
 	"sync"
 	"time"
 
@@ -35,10 +36,28 @@ func Set(key string, obj interface{}, expireTime time.Duration) {
 
 func Get(key string) interface{} {
 	stringValue := Cache.Store.Get(key)
+	if len(stringValue) == 0 {
+		return ""
+	}
 	var wanted interface{}
 	err := json.Unmarshal([]byte(stringValue), &wanted)
 	logger.LogIf(err)
 	return wanted
+}
+
+// Caches 快捷缓存处理
+func Caches(k string, v interface{}, d time.Duration) (data interface{}) {
+	data = Get(k)
+	if data == "" {
+		switch reflect.TypeOf(v).Kind() {
+		case reflect.Func:
+			v = v.(func() interface{})()
+		default:
+		}
+		data = v
+		Set(k, v, d)
+	}
+	return data
 }
 
 func Has(key string) bool {
