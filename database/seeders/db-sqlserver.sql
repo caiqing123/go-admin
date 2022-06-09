@@ -191,5 +191,6 @@ VALUES (1, 0, '正常', '2', 'sys_normal_disable', '2', '系统正常', '2021-05
 
 INSERT INTO jobs (job_id, job_name, job_group, job_type, cron_expression, invoke_target, args, misfire_policy, concurrent, status, entry_id, created_at, updated_at, deleted_at)VALUES
 (1, '接口测试', 'DEFAULT', 1, '0/5 * * * * ', 'http://localhost:8000', '', 1, 1, 1, 0, '2021-05-13 19:56:37.914', '2021-06-14 20:59:55.417', NULL),
-(2, '函数测试', 'DEFAULT', 2, '0/5 * * * * ', 'ExamplesOne', '参数', 1, 1, 1, 0, '2021-05-13 19:56:37.914', '2021-05-31 23:55:37.221', NULL);
+(2, '刷新logger任务', 'DEFAULT', 2, '@daily', 'ExamplesOne', '参数', 1, 1, 2, 0, '2021-05-13 19:56:37.914', '2021-05-31 23:55:37.221', NULL),
+(3, '更新资讯', 'DEFAULT', 2, '@every 25m', 'ExamplesNews', '参数2', 1, 1, 2, 0, '2021-05-13 19:56:37.914', '2021-05-31 23:55:37.221', NULL);
 -- 数据完成 ;

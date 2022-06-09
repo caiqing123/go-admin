@@ -11,7 +11,9 @@ import (
 
 	"api/pkg/book"
 	"api/pkg/book/site"
+	"api/pkg/cache"
 	"api/pkg/file"
+	"api/pkg/hotlist"
 	"api/pkg/logger"
 	"api/pkg/music"
 	"api/pkg/music/kugou"
@@ -115,6 +117,15 @@ func (ctrl *BaseAPIController) BookInfo(c *gin.Context) {
 	}
 	response.JSON(c, gin.H{
 		"data": result,
+	})
+}
+
+//News 热门资讯
+func (ctrl *BaseAPIController) News(c *gin.Context) {
+	hotlist.All(false)
+	data := cache.Get(c.Query("type"))
+	response.JSON(c, gin.H{
+		"data": data,
 	})
 }
 

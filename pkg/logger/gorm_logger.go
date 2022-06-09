@@ -101,7 +101,7 @@ func (l GormLogger) logger() *zap.Logger {
 	)
 
 	// 减去一次封装，以及一次在 logger 初始化里添加 zap.AddCallerSkip(1)
-	clone := l.ZapLogger.WithOptions(zap.AddCallerSkip(-2))
+	clone := Logger.WithOptions(zap.AddCallerSkip(-2))
 
 	for i := 2; i < 15; i++ {
 		_, file, _, ok := runtime.Caller(i)
