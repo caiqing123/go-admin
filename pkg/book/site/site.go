@@ -257,9 +257,13 @@ func Type1SearchAfter(
 			if s2 == nil {
 				continue
 			}
-			s4 := htmlquery.FindOne(v, authorExpr)
-			if s4 == nil {
-				continue
+
+			s4 := &html.Node{}
+			if authorExpr != "" {
+				s4 = htmlquery.FindOne(v, authorExpr)
+				if s4 == nil {
+					continue
+				}
 			}
 
 			u1, _ := url.Parse(htmlquery.SelectAttr(s2, "href"))
@@ -307,12 +311,14 @@ func Type1BookInfo(nameExpr, coverExpr, authorExpr, chapterExpr, DownloadExpr, D
 		}
 
 		// Author
-		authorContent := htmlquery.FindOne(doc, authorExpr)
-		if authorContent == nil {
-			err = fmt.Errorf("no matching author")
-			return
+		if authorExpr != "" {
+			authorContent := htmlquery.FindOne(doc, authorExpr)
+			if authorContent == nil {
+				err = fmt.Errorf("no matching author")
+				return
+			}
+			s.Author = strings.TrimSpace(htmlquery.InnerText(authorContent))
 		}
-		s.Author = strings.TrimSpace(htmlquery.InnerText(authorContent))
 
 		if DownloadExpr != "" {
 			// DownloadExpr

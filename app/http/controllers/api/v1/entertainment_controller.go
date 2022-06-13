@@ -166,6 +166,6 @@ func (ctrl *BaseAPIController) Download(c *gin.Context) {
 	defer resp.Body.Close()
 	w.Header().Add("Content-Disposition", fmt.Sprintf("attachment; filename*=UTF-8''%s", url.PathEscape(name)))
 	data, _ := ioutil.ReadAll(resp.Body)
-	w.Write(data)
+	_, _ = w.Write(data)
 	c.Abort()
 }

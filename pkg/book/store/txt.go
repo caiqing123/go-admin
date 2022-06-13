@@ -18,7 +18,12 @@ func Conv(src Store, outpath string) (err error) {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+
+		}
+	}(f)
 
 	temp := template.New("txt_fiction")
 	temp = temp.Funcs(template.FuncMap{
@@ -49,11 +54,12 @@ func EPUBConv(src Store, outpath string) (err error) {
 			return err
 		}
 		coverBuf, _ := ioutil.ReadAll(body)
-		ioutil.WriteFile(tempfile.Name(), coverBuf, 0775)
+		_ = ioutil.WriteFile(tempfile.Name(), coverBuf, 0775)
 
 		log.Printf("Save Cover Image: %#v", tempfile.Name())
 
-		e.AddImage(tempfile.Name(), "cover.jpg")
+		_, _ = e.AddImage(tempfile.Name(), "cover.jpg")
+
 		e.SetCover("cover.jpg", "")
 	}
 

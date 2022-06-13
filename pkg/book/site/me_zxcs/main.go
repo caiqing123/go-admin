@@ -23,7 +23,7 @@ func Site() site.SiteA {
 		},
 		BookInfo: site.Type1BookInfo(
 			`//div[@id="content"]/h1`,
-			`//div[@id="content"]/a[1]/img`,
+			`//div[@id="content"]/img`,
 			`//div[@id="content"]/h1`,
 			``,
 			`//div[@id="content"]/div[@class="pagefujian"]/div[@class="down_2"]/a`,

@@ -938,7 +938,7 @@ func (spider Spider) GetKD() []map[string]interface{} {
 		if len(text) != 0 {
 			if boolUrl {
 				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": string(text), "url": url})
+					allData = append(allData, map[string]interface{}{"title": text, "url": url})
 				}
 			}
 		}

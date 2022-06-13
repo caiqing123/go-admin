@@ -47,10 +47,12 @@ func main() {
 			bootstrap.SetupCache()
 
 			//注册定时任务
-			go func() {
-				jobs.InitJob()
-				jobs.Setup()
-			}()
+			if command.Use == "serve" {
+				go func() {
+					jobs.InitJob()
+					jobs.Setup()
+				}()
+			}
 		},
 	}
 

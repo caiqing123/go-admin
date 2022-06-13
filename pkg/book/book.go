@@ -32,6 +32,7 @@ func InitSites() {
 	addSiteFunc(me_zxcs.Site)
 	addSiteFunc(qb5_la.Site)
 	addSiteFunc(org_wanben.Site)
+	//addSiteFunc(cn_bookstack.Site)
 }
 
 func Download(ctx context.Context, url string, id string, group string, hookfn func(context.Context, string, string, []byte)) {

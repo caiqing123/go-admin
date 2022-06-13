@@ -129,6 +129,7 @@ func RegisterAPIRoutes(r *gin.Engine) {
 			authGroup.DELETE("/job", job.Delete)
 			authGroup.GET("/job/start", job.StartJob)
 			authGroup.GET("/job/remove", job.RemoveJob)
+			authGroup.GET("/job/cron", job.ParseCron)
 		}
 
 		sslGroup := v1.Group("", middlewares.AuthSsl(), middlewares.AuthJWT())

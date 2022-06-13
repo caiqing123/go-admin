@@ -19,7 +19,7 @@ func InitJob() {
 	}
 }
 
-// ExamplesOne 新添加的job 必须按照以下格式定义，并实现Exec函数
+// ExamplesOne log对象更新 新添加的job 必须按照以下格式定义，并实现Exec函数
 type ExamplesOne struct {
 }
 
@@ -51,6 +51,7 @@ func (t ExamplesOne) Exec(arg interface{}) error {
 	return nil
 }
 
+//ExamplesNews 资讯更新
 type ExamplesNews struct {
 }
 

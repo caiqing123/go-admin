@@ -95,7 +95,7 @@ LOOP:
 
 func Setup() {
 	if !database.DB.Migrator().HasTable("jobs") {
-		console.Error("数据库未初始化 请先执行 ./main init")
+		console.Error("数据库未初始化 请先执行 ./app init")
 		return
 	}
 	jobList := job.GetList()
@@ -214,4 +214,21 @@ func RemoveJob(data job.Job) {
 	case <-time.After(time.Second * 1):
 		logger.Printf("RemoveJob db error: %s", "操作超时！")
 	}
+}
+
+//ParseCronList 获取解析cron表达式列表
+func ParseCronList(spec string) ([]string, error) {
+	parser := cron.NewParser(cron.Second | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow | cron.Descriptor)
+	actual, err := parser.Parse(spec)
+	if err != nil {
+		logger.Printf("ParseCronList error: %s", err)
+		return nil, err
+	}
+	var respTimes []string
+	time1 := time.Now()
+	for i := 0; i < 5; i++ {
+		time1 = actual.Next(time1)
+		respTimes = append(respTimes, time1.Format("2006-01-02 15:04:05"))
+	}
+	return respTimes, nil
 }

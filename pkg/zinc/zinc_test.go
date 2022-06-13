@@ -180,8 +180,12 @@ func TestProxy(t *testing.T) {
 		// 有gzip压缩时,需要解压缩读取返回内容
 		if res.Header.Get("Content-Encoding") == "gzip" {
 			reader, _ := gzip.NewReader(res.Body) // gzip解压缩
-			defer reader.Close()
-			io.Copy(os.Stdout, reader)
+			defer func(reader *gzip.Reader) {
+				err := reader.Close()
+				if err != nil {
+				}
+			}(reader)
+			_, _ = io.Copy(os.Stdout, reader)
 		}
 
 		body, _ := ioutil.ReadAll(res.Body)

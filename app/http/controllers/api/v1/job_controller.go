@@ -148,3 +148,17 @@ func (ctrl *JobController) RemoveJob(c *gin.Context) {
 	cron.RemoveJob(jobs)
 	response.Success(c)
 }
+
+func (ctrl *JobController) ParseCron(c *gin.Context) {
+	expr := c.DefaultQuery("expr", "")
+	if expr == "" {
+		response.NormalVerificationError(c, "表达式为空")
+		return
+	}
+	respTimes, err := cron.ParseCronList(expr)
+	if err != nil {
+		response.Abort500(c, "表达式解析错误")
+		return
+	}
+	response.Data(c, respTimes)
+}
