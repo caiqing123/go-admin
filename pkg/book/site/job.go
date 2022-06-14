@@ -71,7 +71,7 @@ func Job(syncStore *SyncStore, jobch chan error) {
 			}
 			syncStore.SaveJob(vi, ci, content)
 			jobch <- nil
-			time.Sleep(100 * time.Millisecond) //爬取间隔
+			time.Sleep(200 * time.Millisecond) //爬取间隔
 			break A
 		}
 	}

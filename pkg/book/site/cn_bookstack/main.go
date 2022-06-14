@@ -120,17 +120,38 @@ func Chapter(expr string) func(ctx context.Context) (content []string, err error
 			return nil, err
 		}
 		for _, v := range nodeContent {
+			//删除元素
 			fi := htmlquery.FindOne(v, "//blockquote")
 			if fi != nil {
 				v.RemoveChild(fi)
 			}
-			t := htmlquery.InnerText(v)
-			t = strings.TrimSpace(t)
+			h1 := htmlquery.FindOne(v, "//h1")
+			if h1 != nil {
+				v.RemoveChild(h1)
+			}
+			toc := htmlquery.FindOne(v, `//div[@class="markdown-toc editormd-markdown-toc"]`)
+			if toc != nil {
+				v.RemoveChild(toc)
+			}
+
+			t := htmlquery.OutputHTML(v, false)
+			//修改元素
+			img := htmlquery.Find(v, "//img")
+			if len(img) != 0 {
+				for _, v1 := range img {
+					imgUrl := htmlquery.SelectAttr(v1, "data-original")
+					t = strings.Replace(t, `<img src="/static/images/loading.gif" alt="Alt text" data-original="`+imgUrl+`"`, `<img src="`+imgUrl+`" alt="Alt text" data-original="`+imgUrl+`"`, -1)
+				}
+			}
 
 			if t == "" {
 				continue
 			}
-
+			//错误内容 重试
+			if strings.Contains(t, "BookStack") {
+				err = fmt.Errorf("错误内容")
+				return nil, err
+			}
 			M = append(M, t)
 		}
 		return M, nil

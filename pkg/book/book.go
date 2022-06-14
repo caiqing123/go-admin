@@ -11,6 +11,7 @@ import (
 
 	"api/pkg/book/site"
 	"api/pkg/book/site/cc_b520"
+	"api/pkg/book/site/cn_bookstack"
 	"api/pkg/book/site/me_zxcs"
 	"api/pkg/book/site/org_wanben"
 	"api/pkg/book/site/qb5_la"
@@ -32,7 +33,7 @@ func InitSites() {
 	addSiteFunc(me_zxcs.Site)
 	addSiteFunc(qb5_la.Site)
 	addSiteFunc(org_wanben.Site)
-	//addSiteFunc(cn_bookstack.Site)
+	addSiteFunc(cn_bookstack.Site)
 }
 
 func Download(ctx context.Context, url string, id string, group string, hookfn func(context.Context, string, string, []byte)) {
@@ -47,7 +48,11 @@ func Download(ctx context.Context, url string, id string, group string, hookfn f
 		return
 	}
 	site.DownloadWs(result, ctx, id, group, hookfn)
-	err = store.Conv(*result, "public/uploads/book/"+result.BookName+"_"+id+".txt")
+	if strings.Contains(url, "bookstack.cn") {
+		err = store.EPUBConv(*result, "public/uploads/book/"+result.BookName+"_"+id)
+	} else {
+		err = store.TXTConv(*result, "public/uploads/book/"+result.BookName+"_"+id)
+	}
 	if err != nil {
 		logger.Warn(err.Error())
 	}

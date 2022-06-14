@@ -26,7 +26,7 @@ func TestDemoSearch(t *testing.T) {
 	//}
 
 	//详情
-	result, err := site.BookInfo("https://www.bookstack.cn/books/faas")
+	result, err := site.BookInfo("http://www.b520.cc/12_12376/")
 	//fmt.Println(result)
 	fmt.Println(err)
 
@@ -45,8 +45,9 @@ func TestDemoSearch(t *testing.T) {
 	//保存txt
 	site.Download(result)
 	start := time.Now()
-	err = store.Conv(*result, "demo.txt")
-	//err = store.EPUBConv(*result, "demo.epub")
+	//err = store.TXTConv(*result, "demo")
+	//err = store.EPUBConv(*result, "demo")
+	err = store.MdConv(*result, "demo")
 	fmt.Println(time.Since(start))
 	fmt.Println(err)
 
