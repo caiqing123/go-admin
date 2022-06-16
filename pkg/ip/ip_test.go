@@ -1,7 +1,10 @@
 package ip
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestGetClientIP(t *testing.T) {
-	GetLocation("223.104.67.113")
+	fmt.Println(GetLocation("223.104.67.113"))
 }

@@ -17,28 +17,28 @@ func GetLocation(ip string) string {
 	if ip == "127.0.0.1" || ip == "localhost" {
 		return "内部IP"
 	}
-	key := "d3af6d5474dea1410b613a1f4e223e8b"
-	url := "https://restapi.amap.com/v3/ip?ip=" + ip + "&key=" + key
+	url := "http://ip-api.com/json/" + ip + "?lang=zh-CN"
 	resp, err := http.Get(url)
 	if err != nil {
-		fmt.Println("restapi.amap.com failed:", err)
+		fmt.Println("ip-api.com Get failed:", err)
 		return "未知位置"
 	}
 	defer func(Body io.ReadCloser) {
 		_ = Body.Close()
 	}(resp.Body)
 	s, err := ioutil.ReadAll(resp.Body)
-
+	if err != nil {
+		fmt.Println("ip-api.com ReadAll failed:", err)
+		return "未知位置"
+	}
 	m := make(map[string]string)
 
-	err = json.Unmarshal(s, &m)
-	if err != nil {
-		fmt.Println("Umarshal failed:", err)
+	_ = json.Unmarshal(s, &m)
+
+	if m["status"] == "fail" {
+		return m["message"]
 	}
-	if m["status"] == "0" {
-		return m["info"]
-	}
-	return m["country"] + "-" + m["province"] + "-" + m["city"] + "-" + m["district"] + "-" + m["isp"]
+	return m["country"] + "-" + m["regionName"] + "-" + m["city"] + "-" + m["district"] + "-" + m["isp"]
 }
 
 // GetLocationHost 获取局域网ip地址
