@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -22,6 +23,7 @@ import (
 	"api/pkg/music/netease"
 	"api/pkg/music/qqmusic"
 	"api/pkg/response"
+	"api/pkg/video"
 )
 
 type EntertainmentController struct {
@@ -168,4 +170,33 @@ func (ctrl *BaseAPIController) Download(c *gin.Context) {
 	data, _ := ioutil.ReadAll(resp.Body)
 	_, _ = w.Write(data)
 	c.Abort()
+}
+
+//Video 列表
+func (ctrl *BaseAPIController) Video(c *gin.Context) {
+	keyWord := c.DefaultQuery("wd", "")
+	t := c.DefaultQuery("t", "")
+	p := c.DefaultQuery("p", "1")
+	ids := c.DefaultQuery("ids", "")
+	list, err := video.QueryResources(keyWord, t, p, ids)
+	if err != nil {
+		response.NormalVerificationError(c, err.Error())
+		return
+	}
+	response.JSON(c, gin.H{
+		"data": list,
+	})
+}
+
+// VideoTYpe 视频类型
+func (ctrl *BaseAPIController) VideoTYpe(c *gin.Context) {
+	data := func() interface{} {
+		list, err := video.QueryTypes()
+		logger.LogIf(err)
+		return list
+	}
+	list := cache.Caches("VideoTYpe", data, time.Hour*3600)
+	response.JSON(c, gin.H{
+		"data": list,
+	})
 }
