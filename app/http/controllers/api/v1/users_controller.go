@@ -8,6 +8,8 @@ import (
 	"api/app/models/user"
 	"api/app/requests"
 	"api/pkg/auth"
+	"api/pkg/database"
+	"api/pkg/excelize"
 	"api/pkg/file"
 	"api/pkg/response"
 
@@ -67,10 +69,57 @@ func (ctrl *UsersController) Index(c *gin.Context) {
 		return
 	}
 	data, pager := user.Paginate(c, 10, request)
+	if c.GetHeader("Http-Download") == "download" {
+		dataKey, dataList := excelize.FormatDataExport(user.User{}, data)
+		excel := excelize.NewMyExcel()
+		excel.ExportToWeb(dataKey, dataList, c, "用户数据")
+		return
+	}
 	response.JSON(c, gin.H{
 		"data":  data,
 		"pager": pager,
 	})
+}
+
+// Import 文件导入创建用户
+func (ctrl *UsersController) Import(c *gin.Context) {
+	rows, err := excelize.ImportToWeb("file", user.User{}, c)
+	if err != nil {
+		response.Error(c, err)
+		return
+	}
+	isCover := c.PostForm("isCover")
+	tx := database.DB.Begin()
+	for _, row := range rows {
+		userModel := user.User{}
+		userModel.Name = row[0]
+		userModel.RoleID = row[1]
+		userModel.City = row[2]
+		userModel.Introduction = row[3]
+		userModel.Avatar = row[4]
+		userModel.NickName = row[5]
+		userModel.Email = row[6]
+		userModel.Phone = row[7]
+		userModel.Status = row[8]
+		err := error(nil)
+
+		//todo 验证待处理
+		if isCover == "true" {
+			users := user.GetByMulti(userModel.Name)
+			userModel.ID = users.ID
+			err = tx.Save(&userModel).Error
+		} else {
+			userModel.Password = "123456"
+			err = tx.Create(&userModel).Error
+		}
+		if err != nil {
+			tx.Rollback()
+			response.Error(c, err)
+			return
+		}
+	}
+	tx.Commit()
+	response.Success(c)
 }
 
 // UpdateProfile 修改个人信息

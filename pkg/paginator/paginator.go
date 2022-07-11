@@ -69,12 +69,12 @@ func Paginate(c *gin.Context, db *gorm.DB, data interface{}, baseURL string, per
 	p.initProperties(perPage, baseURL, database.TableName(&data))
 	// 查询数据库
 	err := p.query.Preload(clause.Associations). // 读取关联
-		Select(Filed).
-		Order(p.Sort + " " + p.Order). // 排序
-		Limit(p.PerPage).
-		Offset(p.Offset).
-		Find(data).
-		Error
+							Select(Filed).
+							Order(p.Sort + " " + p.Order). // 排序
+							Limit(p.PerPage).
+							Offset(p.Offset).
+							Find(data).
+							Error
 
 	// 数据库出错
 	if err != nil {
@@ -122,7 +122,8 @@ func (p Paginator) getPerPage(perPage int) int {
 
 	//导出则使用导出数量
 	export := p.ctx.Query("export")
-	if export == "1" {
+	header := p.ctx.GetHeader("Http-Download")
+	if export == "1" || header == "download" {
 		perPage = config.GetInt("paging.export")
 	}
 

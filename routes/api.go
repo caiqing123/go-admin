@@ -73,6 +73,7 @@ func RegisterAPIRoutes(r *gin.Engine) {
 			authGroup.PUT("/user/password", uc.UpdatePassword)
 			authGroup.POST("/user/avatar", uc.UpdateAvatar)
 			authGroup.GET("/user", uc.Index)
+			authGroup.POST("/user/import", uc.Import)
 			authGroup.GET("/user/info", uc.Info)
 			authGroup.GET("/user/pwd/reset", uc.ResetByPassword)
 			authGroup.DELETE("/user", uc.Delete)

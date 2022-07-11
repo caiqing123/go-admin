@@ -30,7 +30,7 @@ type Spider struct {
 	DataType string
 }
 
-// V2EX
+// GetV2EX V2EX
 func (spider Spider) GetV2EX() []map[string]interface{} {
 	url := "https://www.v2ex.com/?tab=hot"
 	timeout := 5 * time.Second //超时时间5s
@@ -102,7 +102,7 @@ func (spider Spider) GetITHome() []map[string]interface{} {
 	return allData
 }
 
-// 知乎
+// GetZhiHu 知乎
 func (spider Spider) GetZhiHu() []map[string]interface{} {
 	timeout := 5 * time.Second //超时时间5s
 	client := &http.Client{
@@ -182,7 +182,7 @@ func (spider Spider) GetWeiBo() []map[string]interface{} {
 	return allData
 }
 
-// 豆瓣
+// GetDouBan 豆瓣
 func (spider Spider) GetDouBan() []map[string]interface{} {
 	url := "https://www.douban.com/group/explore"
 	timeout := 5 * time.Second //超时时间5s
@@ -224,7 +224,7 @@ func (spider Spider) GetDouBan() []map[string]interface{} {
 	return allData
 }
 
-// 天涯
+// GetTianYa 天涯
 func (spider Spider) GetTianYa() []map[string]interface{} {
 	url := "http://bbs.tianya.cn/list.jsp?item=funinfo&grade=3&order=1"
 	timeout := 5 * time.Second //超时时间5s
@@ -267,7 +267,7 @@ func (spider Spider) GetTianYa() []map[string]interface{} {
 	return allData
 }
 
-// 虎扑
+// GetHuPu 虎扑
 func (spider Spider) GetHuPu() []map[string]interface{} {
 	url := "https://bbs.hupu.com/all-gambia"
 	timeout := 5 * time.Second //超时时间5s
@@ -310,7 +310,7 @@ func (spider Spider) GetHuPu() []map[string]interface{} {
 	return allData
 }
 
-// Github
+// GetGitHub Github
 func (spider Spider) GetGitHub() []map[string]interface{} {
 	url := "https://github.com/trending"
 	timeout := 5 * time.Second //超时时间5s
@@ -856,7 +856,7 @@ func (spider Spider) GetCSDN() []map[string]interface{} {
 	return allData
 }
 
-// https://weixin.sogou.com/?pid=sogou-wsse-721e049e9903c3a7&kw=
+// GetWeiXin https://weixin.sogou.com/?pid=sogou-wsse-721e049e9903c3a7&kw=
 func (spider Spider) GetWeiXin() []map[string]interface{} {
 	url := "https://weixin.sogou.com/?pid=sogou-wsse-721e049e9903c3a7&kw="
 	timeout := 5 * time.Second //超时时间5s
@@ -901,9 +901,9 @@ func (spider Spider) GetWeiXin() []map[string]interface{} {
 	return allData
 }
 
-//
+// GetKD 凯迪
 func (spider Spider) GetKD() []map[string]interface{} {
-	url := "http://www.kdnet.net/"
+	url := "https://www.9kd.com/"
 	timeout := 5 * time.Second //超时时间5s
 	client := &http.Client{
 		Timeout: timeout,
@@ -1038,9 +1038,7 @@ func (spider Spider) GetJianDan() []map[string]interface{} {
 	return allData
 }
 
-/**
-部分热榜标题需要转码
-*/
+//GbkToUtf8 部分热榜标题需要转码
 func GbkToUtf8(s []byte) ([]byte, error) {
 	reader := transform.NewReader(bytes.NewReader(s), simplifiedchinese.GBK.NewDecoder())
 	d, e := ioutil.ReadAll(reader)
@@ -1050,9 +1048,7 @@ func GbkToUtf8(s []byte) ([]byte, error) {
 	return d, nil
 }
 
-/**
-执行每个分类数据
-*/
+//ExecGetData 执行每个分类数据
 func ExecGetData(spider Spider) {
 	start := time.Now()
 	reflectValue := reflect.ValueOf(spider)

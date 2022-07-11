@@ -91,7 +91,7 @@ func Site() site.SiteA {
 
 //removeDuplicateElement 去重处理
 func removeDuplicateElement(languages store.Volume) []store.Chapter {
-	var result = []store.Chapter{}
+	var result []store.Chapter
 	temp := map[string]struct{}{}
 	for _, item := range languages.Chapters {
 		if _, ok := temp[item.URL]; !ok {

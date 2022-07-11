@@ -1,8 +1,10 @@
 package excelize
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"math/rand"
 	"net/url"
 	"os"
@@ -43,7 +45,7 @@ func FormatDataExport(key interface{}, data interface{}) (dataKey []map[string]s
 		if title == "" {
 			title = key
 		}
-		if key != "" {
+		if key != "" && key != "-" {
 			dataKey = append(dataKey, map[string]string{"key": key, "title": title})
 		}
 	}
@@ -152,4 +154,90 @@ func createFileName(title string) string {
 	name := time.Now().Format("2006-01-02-15-04-05")
 	rand.Seed(time.Now().UnixNano())
 	return fmt.Sprintf("%v-%v-%v.xlsx", title, name, rand.Int63n(time.Now().Unix()))
+}
+
+// ImportToWeb  浏览器请求导入数据
+func ImportToWeb(name string, key interface{}, ctx *gin.Context) ([][]string, error) {
+	files, err := ctx.FormFile(name)
+	if err != nil {
+		return nil, fmt.Errorf("文件上传失败:%v", err)
+	}
+
+	src, _ := files.Open()      // 获取流
+	buf := bytes.NewBuffer(nil) // 初始化一个字节缓冲区
+	_, err = io.Copy(buf, src)  // 将file流拷贝到空缓冲区中
+	if err != nil {
+		return nil, fmt.Errorf("文件解析失败:%v", err)
+	}
+
+	f, err := excelize.OpenReader(buf)
+	if err != nil {
+		return nil, fmt.Errorf("文件解析失败:%v", err)
+	}
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+	rows, err := f.GetRows(f.GetSheetList()[0])
+	if err != nil {
+		return nil, fmt.Errorf("文件内容为空:%v", err)
+	}
+	if len(rows) < 1 {
+		return nil, fmt.Errorf("未找到数据")
+	}
+	//比较字段是否一致
+	dataKey := FormatDataTitle(key)
+	if !reflect.DeepEqual(dataKey, rows[0]) {
+		return nil, fmt.Errorf("字段格式错误")
+	}
+	rows = append(rows[1:])
+	return rows, nil
+}
+
+//ImportToPath 文件导入数据
+func ImportToPath(filename string, key interface{}) ([][]string, error) {
+	f, err := excelize.OpenFile(filename)
+	if err != nil {
+		return nil, fmt.Errorf("文件解析失败:%v", err)
+	}
+	defer func() {
+		if err := f.Close(); err != nil {
+			fmt.Println(err)
+		}
+	}()
+	rows, err := f.GetRows(f.GetSheetList()[0])
+	if err != nil {
+		return nil, fmt.Errorf("文件内容为空:%v", err)
+	}
+	if len(rows) < 1 {
+		return nil, fmt.Errorf("未找到数据")
+	}
+	//比较字段是否一致
+	dataKey := FormatDataTitle(key)
+	if !reflect.DeepEqual(dataKey, rows[0]) {
+		return nil, fmt.Errorf("字段格式错误")
+	}
+	rows = append(rows[1:])
+	return rows, nil
+}
+
+func FormatDataTitle(key interface{}) (dataKey []string) {
+	v := reflect.ValueOf(key)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
+	}
+	t := v.Type()
+	for i := 0; i < v.NumField(); i++ {
+		fi := t.Field(i)
+		title := fi.Tag.Get("title")
+		key := strings.Split(fi.Tag.Get("json"), ",")[0]
+		if title == "" {
+			title = key
+		}
+		if key != "" && key != "-" {
+			dataKey = append(dataKey, title)
+		}
+	}
+	return
 }
