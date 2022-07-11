@@ -5,4 +5,3 @@ const (
 	user = "jiobxn"
 	pass = "id38huAQ23@#sws!"
 )
-

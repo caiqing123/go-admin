@@ -54,4 +54,3 @@ func CurrentUID(c *gin.Context) string {
 func CurrentName(c *gin.Context) string {
 	return c.GetString("current_user_name")
 }
-

@@ -54,11 +54,11 @@ type MenuRequest struct {
 
 func MenuSave(data interface{}, c *gin.Context) map[string][]string {
 	rules := govalidator.MapData{
-		"title":    []string{"required"},
+		"title":     []string{"required"},
 		"menu_type": []string{"required", "in:M,C,F"},
-		"visible":  []string{"required", "in:0,1"},
+		"visible":   []string{"required", "in:0,1"},
 		"is_frame":  []string{"required", "in:0,1"},
-		"id":       []string{"exists:menus,id"},
+		"id":        []string{"exists:menus,id"},
 	}
 
 	messages := govalidator.MapData{

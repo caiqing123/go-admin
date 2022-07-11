@@ -37,7 +37,6 @@ func (job *Job) Save() (rowsAffected int64) {
 	return result.RowsAffected
 }
 
-
 func (job *Job) Delete() (rowsAffected int64) {
 	result := database.DB.Delete(&job)
 	return result.RowsAffected

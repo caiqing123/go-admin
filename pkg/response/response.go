@@ -104,7 +104,6 @@ func NormalVerificationError(c *gin.Context, msg ...string) {
 	})
 }
 
-
 // ValidationError 处理表单验证不通过的错误，返回的 JSON 示例：
 //         {
 //             "errors": {

@@ -14,7 +14,8 @@ import (
 func Success(msg string) {
 	color.NoColor = false
 	_, err := fmt.Fprintln(color.Output, color.GreenString(msg))
-	logger.LogIf(err)}
+	logger.LogIf(err)
+}
 
 // Error 打印一条报错消息，红色输出
 func Error(msg string) {

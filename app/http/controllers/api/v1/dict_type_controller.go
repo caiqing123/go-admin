@@ -20,7 +20,7 @@ func (ctrl *DictTypeController) Index(c *gin.Context) {
 	if id != "" {
 		data := dict_type.Get(id)
 		response.JSON(c, gin.H{
-			"data":    data,
+			"data": data,
 		})
 		return
 	}
@@ -82,14 +82,13 @@ func (ctrl *DictTypeController) Add(c *gin.Context) {
 	}
 }
 
-
 func (ctrl *DictTypeController) Delete(c *gin.Context) {
 	request := requests.UserDeleteRequest{}
 	if ok := requests.Validate(c, &request, requests.UserDelete); !ok {
 		return
 	}
 
-	rowsAffected := dict_type.DeleteIds(request.Ids,dict_type.DictType{})
+	rowsAffected := dict_type.DeleteIds(request.Ids, dict_type.DictType{})
 	if rowsAffected > 0 {
 		response.Success(c)
 		return

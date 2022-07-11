@@ -43,7 +43,7 @@ type RoleRequest struct {
 	RoleName string `json:"role_name,omitempty" valid:"role_name" form:"role_name"`
 	RoleKey  string `json:"role_key,omitempty" valid:"role_key" form:"role_key"`
 	RoleSort int    `json:"role_sort" form:"role_sort"`
-	Status   string    `valid:"status" json:"status" form:"status"`
+	Status   string `valid:"status" json:"status" form:"status"`
 	Remark   string `json:"remark" form:"remark"`
 	MenuIds  []int  `valid:"menu_ids" json:"menu_ids" form:"menu_ids"`
 
