@@ -39,15 +39,23 @@ func GetByMulti(loginID string) (userModel User) {
 	return
 }
 
+// GetByMulti 通过 用户名 来获取用户
+func GetByName(loginID string) (userModel User) {
+	database.DB.
+		Where("name = ?", loginID).
+		First(&userModel)
+	return
+}
+
 // Get 通过 ID 获取用户
-func Get(idstr string) (userModel User) {
+func Get(idstr int) (userModel User) {
 	database.DB.Where("id", idstr).First(&userModel)
 	return
 }
 
 // IsAdmin id是否超级管理员
-func IsAdmin(id string) bool {
-	if id == "1" {
+func IsAdmin(id int) bool {
+	if id == 1 {
 		return false
 	}
 	return true

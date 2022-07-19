@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/chenhg5/collection"
+	"github.com/spf13/cast"
 
 	"api/app/models/menu"
 	"api/app/models/role"
@@ -31,7 +32,7 @@ func AuthJWT() gin.HandlerFunc {
 		}
 
 		// JWT 解析成功，设置用户信息
-		userModel := user.Get(claims.UserID)
+		userModel := user.Get(cast.ToInt(claims.UserID))
 		if userModel.ID == 0 {
 			response.Unauthorized(c, "找不到对应用户，用户可能已删除")
 			return

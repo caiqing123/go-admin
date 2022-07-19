@@ -2,6 +2,7 @@ package requests
 
 import (
 	"mime/multipart"
+	"strconv"
 
 	"api/app/requests/validators"
 	"api/pkg/auth"
@@ -178,7 +179,7 @@ func UserUpdateAvatar(data interface{}, c *gin.Context) map[string][]string {
 }
 
 type UserDeleteRequest struct {
-	Ids []int `valid:"ids" form:"ids"`
+	Ids []int `valid:"ids" form:"ids" json:"ids"`
 }
 
 func UserDelete(data interface{}, c *gin.Context) map[string][]string {
@@ -224,16 +225,16 @@ type UserRequest struct {
 	RoleID       int    `valid:"role_id" json:"role_id" form:"role_id"`
 	NickName     string `json:"nick_name" form:"nick_name"`
 	Introduction string `json:"introduction" form:"introduction"`
-	Id           string `valid:"id" json:"id" form:"id"`
+	Id           int    `valid:"id" json:"id" form:"id"`
 }
 
 func UserSave(data interface{}, c *gin.Context) map[string][]string {
 	_data := data.(*UserRequest)
 	rules := govalidator.MapData{
-		"phone":    []string{"required", "digits:11", "not_exists:users,phone," + _data.Id},
-		"name":     []string{"required", "alpha_num", "between:3,20", "not_exists:users,name," + _data.Id},
+		"phone":    []string{"required", "digits:11", "not_exists:users,phone," + strconv.Itoa(_data.Id)},
+		"name":     []string{"required", "alpha_num", "between:3,20", "not_exists:users,name," + strconv.Itoa(_data.Id)},
 		"password": []string{"min:6"},
-		"email":    []string{"required", "min:4", "max:30", "email", "not_exists:users,email," + _data.Id},
+		"email":    []string{"required", "min:4", "max:30", "email", "not_exists:users,email," + strconv.Itoa(_data.Id)},
 		"role_id":  []string{"required", "exists:roles,id"},
 		"status":   []string{"required", "in:1,2"},
 		"id":       []string{"exists:users,id"},

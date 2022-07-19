@@ -3,6 +3,8 @@ package v1
 import (
 	"strconv"
 
+	"github.com/spf13/cast"
+
 	"api/app/models/menu"
 	"api/app/models/role"
 	"api/app/models/user"
@@ -14,6 +16,7 @@ import (
 	"api/pkg/response"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/copier"
 )
 
 type UsersController struct {
@@ -101,12 +104,28 @@ func (ctrl *UsersController) Import(c *gin.Context) {
 		userModel.Email = row[6]
 		userModel.Phone = row[7]
 		userModel.Status = row[8]
+		if isCover == "true" {
+			users := user.GetByName(userModel.Name)
+			userModel.ID = users.ID
+		}
 		err := error(nil)
 
-		//todo 验证待处理
+		//验证
+		request := requests.UserRequest{}
+		//model复制到request验证
+		err = copier.Copy(&request, userModel)
+		if err != nil {
+			tx.Rollback()
+			response.Error(c, err)
+			return
+		}
+		//由于复制的role_id类型不一致
+		request.RoleID = cast.ToInt(row[1])
+		if ok := requests.Validate(c, &request, requests.UserSave); !ok {
+			tx.Rollback()
+			return
+		}
 		if isCover == "true" {
-			users := user.GetByMulti(userModel.Name)
-			userModel.ID = users.ID
 			err = tx.Save(&userModel).Error
 		} else {
 			userModel.Password = "123456"
@@ -149,7 +168,7 @@ func (ctrl *UsersController) Info(c *gin.Context) {
 		response.NormalVerificationError(c, "用户id为空")
 		return
 	}
-	users := user.Get(userId)
+	users := user.Get(cast.ToInt(userId))
 	response.Data(c, users)
 }
 
@@ -160,7 +179,7 @@ func (ctrl *UsersController) Update(c *gin.Context) {
 		return
 	}
 
-	if request.Id == "" {
+	if request.Id == 0 {
 		response.NormalVerificationError(c, "用户id为空")
 		return
 	}
@@ -237,9 +256,9 @@ func (ctrl *UsersController) UpdateEmail(c *gin.Context) {
 // ResetByPassword 重置密码
 func (ctrl *UsersController) ResetByPassword(c *gin.Context) {
 	// 1. 验证表单
-	userId := c.DefaultQuery("id", "")
+	userId := cast.ToInt(c.DefaultQuery("id", ""))
 	password := c.DefaultQuery("password", "")
-	if userId == "" || password == "" {
+	if userId == 0 || password == "" {
 		response.NormalVerificationError(c, "参数为空")
 		return
 	}
@@ -255,6 +274,30 @@ func (ctrl *UsersController) ResetByPassword(c *gin.Context) {
 		response.Abort404(c)
 	} else {
 		userModel.Password = password
+		userModel.Save()
+		response.Success(c)
+	}
+}
+
+//Status 状态修改
+func (ctrl *UsersController) Status(c *gin.Context) {
+	userId := cast.ToInt(c.DefaultQuery("id", ""))
+	status := c.DefaultQuery("status", "")
+	if userId == 0 || status == "" {
+		response.NormalVerificationError(c, "参数为空")
+		return
+	}
+
+	if ok := user.IsAdmin(userId); !ok {
+		response.NormalVerificationError(c, "无法修改")
+		return
+	}
+
+	userModel := user.Get(userId)
+	if userModel.ID == 0 {
+		response.Abort404(c)
+	} else {
+		userModel.Status = status
 		userModel.Save()
 		response.Success(c)
 	}
@@ -320,13 +363,12 @@ func (ctrl *UsersController) UpdateAvatar(c *gin.Context) {
 	response.Data(c, currentUser)
 }
 
+//Delete 删除用户
 func (ctrl *UsersController) Delete(c *gin.Context) {
-
 	request := requests.UserDeleteRequest{}
 	if ok := requests.Validate(c, &request, requests.UserDelete); !ok {
 		return
 	}
-
 	rowsAffected := user.DeleteIds(request.Ids, user.User{})
 	if rowsAffected > 0 {
 		response.Success(c)

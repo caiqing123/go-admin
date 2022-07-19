@@ -7,6 +7,7 @@ import (
 	"api/app/models/role_menu"
 	"api/app/models/user"
 	"api/app/requests"
+	"api/pkg/excelize"
 	"api/pkg/response"
 
 	"github.com/gin-gonic/gin"
@@ -23,6 +24,12 @@ func (ctrl *RolesController) GetRole(c *gin.Context) {
 		return
 	}
 	data, pager := role.Paginate(c, 10, request)
+	if c.GetHeader("Http-Download") == "download" {
+		dataKey, dataList := excelize.FormatDataExport(role.Role{}, data)
+		excel := excelize.NewMyExcel()
+		excel.ExportToWeb(dataKey, dataList, c, "角色数据")
+		return
+	}
 	response.JSON(c, gin.H{
 		"data":  data,
 		"pager": pager,
@@ -40,7 +47,7 @@ func (ctrl *RolesController) Update(c *gin.Context) {
 		response.NormalVerificationError(c, "用户id为空")
 		return
 	}
-	if ok := user.IsAdmin(strconv.Itoa(request.Id)); !ok {
+	if ok := user.IsAdmin(request.Id); !ok {
 		response.NormalVerificationError(c, "无法修改")
 		return
 	}

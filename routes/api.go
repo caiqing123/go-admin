@@ -77,6 +77,7 @@ func RegisterAPIRoutes(r *gin.Engine) {
 			authGroup.GET("/user/info", uc.Info)
 			authGroup.GET("/user/pwd/reset", uc.ResetByPassword)
 			authGroup.DELETE("/user", uc.Delete)
+			authGroup.GET("/user/status", uc.Status)
 
 			mu := new(controllers.MenusController)
 			authGroup.GET("/menu-role", mu.GetMenuRole)
