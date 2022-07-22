@@ -233,3 +233,18 @@ type Data struct {
 	Totaltime int           `json:"totaltime"`
 	Zhida     Zhida         `json:"zhida"`
 }
+
+type SearchQuickJSONStruct struct {
+	Code int `json:"code"`
+	Data struct {
+		Song struct {
+			Count    int    `json:"count"`
+			Name     string `json:"name"`
+			Itemlist []struct {
+				Name   string `json:"name"`
+				Mid    string `json:"mid"`
+				Singer string `json:"singer"`
+			} `json:"itemlist"`
+		} `json:"song"`
+	} `json:"data"`
+}

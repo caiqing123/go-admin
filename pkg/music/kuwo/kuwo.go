@@ -10,15 +10,18 @@ import (
 	"strconv"
 	"time"
 
-	"api/pkg/music"
+	"api/pkg/music/comm"
 )
 
 // Kuwo kuwo 音乐
-func Kuwo(songName string) (ret []music.Result, err error) {
+func Kuwo(songName string, p string) (ret []comm.Result, err error) {
+	if songName == "" {
+		return commend()
+	}
 	u, _ := url.ParseRequestURI("http://kuwo.cn/api/www/search/searchMusicBykeyWord")
 	query := url.Values{}
 	query.Set("key", songName)
-	query.Set("pn", "1")
+	query.Set("pn", p)
 	query.Set("rn", "30")
 	u.RawQuery = query.Encode()
 
@@ -29,7 +32,7 @@ func Kuwo(songName string) (ret []music.Result, err error) {
 	req.Header.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36 Edg/84.0.522.48")
 	req.Header.Add("Cookie", "kw_token=4IT871VN3DA")
 
-	resp, err := music.Client.Do(req)
+	resp, err := comm.Client.Do(req)
 	if err != nil {
 		log.Printf("request err: %v\n", err)
 		return nil, fmt.Errorf("酷我网络请求失败")
@@ -51,7 +54,7 @@ func Kuwo(songName string) (ret []music.Result, err error) {
 	if info.Code == 200 {
 		for index, result := range info.Data.List {
 			downloadUrl, _ := getPlayURL(result.Rid)
-			ret = append(ret, music.Result{Title: strconv.Itoa(index+1) + ". " + result.Name + " - [ " + result.Artist + " ]", Author: result.Artist,
+			ret = append(ret, comm.Result{Title: strconv.Itoa(index+1) + ". " + result.Name + " - [ " + result.Artist + " ]", Author: result.Artist,
 				SongName: result.Name,
 				SongURL:  downloadUrl})
 		}
@@ -97,4 +100,41 @@ func get(client *http.Client, u string) (body []byte, err error) {
 		return nil, err
 	}
 	return body, nil
+}
+
+//commend 推荐
+func commend() (ret []comm.Result, err error) {
+	fullURL := fmt.Sprintf("http://www.kuwo.cn/api/www/bang/bang/musicList?bangId=93&pn=1&rn=30&httpsStatus=1")
+	req, _ := http.NewRequest("GET", fullURL, nil)
+	req.Header.Add("Host", "kuwo.cn")
+	req.Header.Add("Referer", "http://kuwo.cn/")
+	req.Header.Add("csrf", "4IT871VN3DA")
+	req.Header.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36 Edg/84.0.522.48")
+	req.Header.Add("Cookie", "kw_token=4IT871VN3DA")
+	resp, err := comm.Client.Do(req)
+	if err != nil {
+		log.Printf("request err: %v\n", err)
+		return nil, fmt.Errorf("请求错误")
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("read body err: %v\n", err)
+		return nil, fmt.Errorf("读取数据错误")
+	}
+
+	info := &CommendJSONStruct{}
+	err = json.Unmarshal(body, &info)
+	if err != nil {
+		log.Println("获取json信息失败")
+		return nil, fmt.Errorf("获取json信息失败")
+	}
+	for index, result := range info.Data.MusicList {
+		downloadUrl, _ := getPlayURL(result.Rid)
+		ret = append(ret, comm.Result{Title: strconv.Itoa(index+1) + ". " + result.Name + " - [ " + result.Artist + " ]", Author: result.Artist,
+			SongName: result.Name,
+			SongURL:  downloadUrl})
+	}
+	return ret, nil
 }

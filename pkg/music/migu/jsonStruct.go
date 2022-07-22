@@ -102,3 +102,34 @@ type JSONStruct struct {
 	BestShowResultToneData struct {
 	} `json:"bestShowResultToneData"`
 }
+
+type CommendJSONStruct struct {
+	ColumnInfo struct {
+		ColumnDes   string `json:"columnDes"`
+		ColumnTitle string `json:"columnTitle"`
+		Contents    []struct {
+			ObjectInfo struct {
+				SongName       string `json:"songName"`
+				Singer         string `json:"singer"`
+				NewRateFormats []struct {
+					ResourceType         string `json:"resourceType"`
+					FormatType           string `json:"formatType"`
+					URL                  string `json:"url,omitempty"`
+					Format               string `json:"format"`
+					Size                 string `json:"size"`
+					FileType             string `json:"fileType,omitempty"`
+					Price                string `json:"price"`
+					IosURL               string `json:"iosUrl,omitempty"`
+					AndroidURL           string `json:"androidUrl,omitempty"`
+					IosSize              string `json:"iosSize,omitempty"`
+					AndroidSize          string `json:"androidSize,omitempty"`
+					IosFormat            string `json:"iosFormat,omitempty"`
+					AndroidFormat        string `json:"androidFormat,omitempty"`
+					IosAccuracyLevel     string `json:"iosAccuracyLevel,omitempty"`
+					AndroidAccuracyLevel string `json:"androidAccuracyLevel,omitempty"`
+				} `json:"newRateFormats"`
+			} `json:"objectInfo"`
+		} `json:"contents"`
+	} `json:"columnInfo"`
+	Code string `json:"code"`
+}

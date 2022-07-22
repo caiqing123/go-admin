@@ -16,11 +16,12 @@ import (
 	"api/pkg/file"
 	"api/pkg/hotlist"
 	"api/pkg/logger"
-	"api/pkg/music"
+	"api/pkg/music/comm"
 	"api/pkg/music/kugou"
 	"api/pkg/music/kuwo"
 	"api/pkg/music/migu"
 	"api/pkg/music/netease"
+	"api/pkg/music/qianqian"
 	"api/pkg/music/qqmusic"
 	"api/pkg/response"
 	"api/pkg/video"
@@ -38,12 +39,9 @@ func init() {
 func (ctrl *BaseAPIController) Music(c *gin.Context) {
 	option := c.Query("option")
 	name := c.Query("name")
-	if len(strings.TrimSpace(name)) == 0 {
-		response.NormalVerificationError(c, "缺少参数")
-		return
-	}
+	p := c.DefaultQuery("p", "1")
 
-	var sourcer func(string) ([]music.Result, error)
+	var sourcer func(string, string) ([]comm.Result, error)
 	switch option {
 	case "qq":
 		sourcer = qqmusic.QQMusic
@@ -52,17 +50,19 @@ func (ctrl *BaseAPIController) Music(c *gin.Context) {
 	case "migu":
 		sourcer = migu.Migu
 	case "kugou":
-		sourcer = kugou.Kugou
+		sourcer = kugou.NewKugou
 	case "kuwo":
 		sourcer = kuwo.Kuwo
+	case "qianqian":
+		sourcer = qianqian.Qianqian
 	default:
 		response.NormalVerificationError(c, "无效的参数")
 		return
 	}
-	ret, err := sourcer(name)
+	ret, err := sourcer(name, p)
 	if err != nil {
 		logger.Error(err.Error())
-		response.Abort500(c, "出错")
+		response.Abort500(c, err.Error())
 		return
 	}
 	response.JSON(c, gin.H{
@@ -134,7 +134,7 @@ func (ctrl *BaseAPIController) News(c *gin.Context) {
 // Download 下载
 func (ctrl *BaseAPIController) Download(c *gin.Context) {
 	url1 := c.Query("url")
-	name := c.DefaultQuery("name", "download")
+	name := c.DefaultQuery("name", "download12")
 	// 转发处理
 	//remote, err := url.Parse(url1)
 	//if err != nil {

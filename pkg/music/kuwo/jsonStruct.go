@@ -61,3 +61,16 @@ type GetPlayURLJSONStruct struct {
 		URL string `json:"url"`
 	} `json:"data"`
 }
+
+type CommendJSONStruct struct {
+	Data struct {
+		Img       string `json:"img"`
+		Num       string `json:"num"`
+		MusicList []struct {
+			Artist string `json:"artist"`
+			Rid    int    `json:"rid"`
+			Name   string `json:"name"`
+		} `json:"musicList"`
+	} `json:"data"`
+	Code int `json:"code"`
+}

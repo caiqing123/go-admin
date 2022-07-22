@@ -141,3 +141,19 @@ type Result struct {
 	Songs     []Songs `json:"songs"`
 	SongCount int     `json:"songCount"`
 }
+
+type CommendJSONStruct struct {
+	Playlist struct {
+		Description string `json:"description"`
+		Name        string `json:"name"`
+		Tracks      []struct {
+			ID   int    `json:"id"`
+			Name string `json:"name"`
+			Ar   []struct {
+				ID   int    `json:"id"`
+				Name string `json:"name"`
+			} `json:"ar"`
+		} `json:"tracks"`
+	} `json:"playlist"`
+	Code int `json:"code"`
+}

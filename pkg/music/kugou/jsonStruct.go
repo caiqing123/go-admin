@@ -122,3 +122,39 @@ type SongInfoJSONStruct struct {
 	} `json:"data"`
 	Url []string `json:"url"`
 }
+
+type NewSearchJSONStruct struct {
+	Status    int    `json:"status"`
+	Error_msg string `json:"error_msg"`
+	Data      struct {
+		Lists []struct {
+			AlbumID    string `json:"AlbumID"`
+			AlbumName  string `json:"AlbumName"`
+			FileHash   string `json:"FileHash"`
+			FileName   string `json:"FileName"`
+			SongName   string `json:"SongName"`
+			SingerName string `json:"SingerName"`
+		} `json:"lists"`
+	} `json:"data"`
+	Error_code int `json:"error_code"`
+}
+
+type NewSongInfoJSONStruct struct {
+	Status  int `json:"status"`
+	ErrCode int `json:"err_code"`
+	Data    struct {
+		Lyrics        string `json:"lyrics"`
+		Play_url      string `json:"play_url"`
+		PlayBackupURL string `json:"play_backup_url"`
+	} `json:"data"`
+}
+
+type CommendJSONStruct struct {
+	Data []struct {
+		AlbumID    string `json:"album_id"`
+		Hash       string `json:"hash"`
+		SongName   string `json:"Song_name"`
+		SingerName string `json:"singer_name"`
+	} `json:"data"`
+	Src string `json:"src"`
+}
