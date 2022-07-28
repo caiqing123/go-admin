@@ -52,16 +52,7 @@ func Migu(songName string, p string) (ret []comm.Result, err error) {
 
 	if info.Code == "000000" && len(info.SongResultData.Result) > 0 {
 		for index, result := range info.SongResultData.Result {
-			list := make(map[int]string)
-			for i, v := range result.NewRateFormats {
-				if v.FileType == "mp3" {
-					list[i] = v.URL
-				}
-			}
-			option := list[len(list)-1]
-			pathname := &url.URL{}
-			pathname, err = url.Parse(option)
-			downloadUrl := "https://freetyst.nf.migu.cn/" + pathname.Path
+			downloadUrl, _ := getPlayURL(result.CopyrightID)
 			ret = append(ret, comm.Result{Title: strconv.Itoa(index+1) + ". " + result.Name + " - [ " + result.Singers[0].Name + " ]", Author: result.Singers[0].Name,
 				SongName: result.Name,
 				SongURL:  downloadUrl})
@@ -114,4 +105,51 @@ func commend() (ret []comm.Result, err error) {
 			SongURL:  downloadUrl})
 	}
 	return ret, nil
+}
+
+func getPlayURL(cid string) (playURL string, err error) {
+	if cid == "" {
+		return "", nil
+	}
+	fullURL := fmt.Sprintf(`https://c.musicapp.migu.cn/MIGUM2.0/v1.0/content/resourceinfo.do?copyrightId=` + cid + `&resourceType=2`)
+	req, _ := http.NewRequest("GET", fullURL, nil)
+	req.Header.Add("Referer", "https://m.music.migu.cn/")
+	req.Header.Add("User-Agent", "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Mobile Safari/537.36")
+	req.Header.Add("Host", "https://migu.cn")
+	resp, err := comm.Client.Do(req)
+	if err != nil {
+		log.Printf("request err: %v\n", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("read body err: %v\n", err)
+		return
+	}
+
+	info := &VkeyJSONStruct{}
+	err = json.Unmarshal(body, &info)
+	if err != nil {
+		log.Printf("json unmarshal err: %v\n", err)
+		return
+	}
+	if info.Code == "000000" && len(info.Resource) > 0 {
+		list := make(map[int]string)
+		for i, v := range info.Resource[0].NewRateFormats {
+			if v.FileType == "mp3" {
+				list[i] = v.URL
+			}
+		}
+		option := list[len(list)-1]
+		pathname := &url.URL{}
+		pathname, err = url.Parse(option)
+		if pathname.Path == "" {
+			return "", fmt.Errorf("没有找到播放地址")
+		}
+		downloadUrl := "https://freetyst.nf.migu.cn/" + pathname.Path
+		return downloadUrl, nil
+	}
+	return "", fmt.Errorf("not found")
 }

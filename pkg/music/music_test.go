@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"testing"
 
-	"api/pkg/music/qqmusic"
+	"api/pkg/music/netease"
 )
 
 func TestMusic(*testing.T) {
-	d, _ := qqmusic.QQMusic("qq", "1")
+	d, err := netease.Netease("", "1")
+	fmt.Println(err)
 	fmt.Println(d)
 
 }

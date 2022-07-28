@@ -133,3 +133,26 @@ type CommendJSONStruct struct {
 	} `json:"columnInfo"`
 	Code string `json:"code"`
 }
+
+type VkeyJSONStruct struct {
+	Code     string `json:"code"`
+	Resource []struct {
+		NewRateFormats []struct {
+			ResourceType         string `json:"resourceType"`
+			FormatType           string `json:"formatType"`
+			URL                  string `json:"url,omitempty"`
+			Format               string `json:"format"`
+			Size                 string `json:"size"`
+			FileType             string `json:"fileType,omitempty"`
+			Price                string `json:"price"`
+			IosURL               string `json:"iosUrl,omitempty"`
+			AndroidURL           string `json:"androidUrl,omitempty"`
+			IosSize              string `json:"iosSize,omitempty"`
+			AndroidSize          string `json:"androidSize,omitempty"`
+			IosFormat            string `json:"iosFormat,omitempty"`
+			AndroidFormat        string `json:"androidFormat,omitempty"`
+			IosAccuracyLevel     string `json:"iosAccuracyLevel,omitempty"`
+			AndroidAccuracyLevel string `json:"androidAccuracyLevel,omitempty"`
+		} `json:"newRateFormats"`
+	} `json:"resource"`
+}

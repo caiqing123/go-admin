@@ -82,13 +82,12 @@ type Req0 struct {
 
 // SearchJSONStruct qq音乐搜索接口信息
 type SearchJSONStruct struct {
-	Code    int    `json:"code"`
-	Data    Data   `json:"data"`
-	Message string `json:"message"`
-	Notice  string `json:"notice"`
-	Subcode int    `json:"subcode"`
-	Time    int    `json:"time"`
-	Tips    string `json:"tips"`
+	Code int `json:"code"`
+	Req0 struct {
+		Code int  `json:"code"`
+		Data Data `json:"data"`
+	} `json:"req_0"`
+	StartTs int `json:"start_ts"`
 }
 type Semantic struct {
 	Curnum   int           `json:"curnum"`
@@ -205,10 +204,7 @@ type List struct {
 	Volume        Volume        `json:"volume"`
 }
 type Song struct {
-	Curnum   int    `json:"curnum"`
-	Curpage  int    `json:"curpage"`
-	List     []List `json:"list"`
-	Totalnum int    `json:"totalnum"`
+	List []List `json:"list"`
 }
 type ZhidaMv struct {
 	Desc        string `json:"desc"`
@@ -223,15 +219,9 @@ type Zhida struct {
 	ZhidaMv ZhidaMv `json:"zhida_mv"`
 }
 type Data struct {
-	Keyword   string        `json:"keyword"`
-	Priority  int           `json:"priority"`
-	Qc        []interface{} `json:"qc"`
-	Semantic  Semantic      `json:"semantic"`
-	Song      Song          `json:"song"`
-	Tab       int           `json:"tab"`
-	Taglist   []interface{} `json:"taglist"`
-	Totaltime int           `json:"totaltime"`
-	Zhida     Zhida         `json:"zhida"`
+	Body struct {
+		Song Song `json:"song"`
+	} `json:"body"`
 }
 
 type SearchQuickJSONStruct struct {
@@ -247,4 +237,21 @@ type SearchQuickJSONStruct struct {
 			} `json:"itemlist"`
 		} `json:"song"`
 	} `json:"data"`
+}
+
+type CommendJSONStruct struct {
+	Code   int `json:"code"`
+	Detail struct {
+		Data struct {
+			Data struct {
+				AdShareContent string `json:"AdShareContent"`
+				Title          string `json:"title"`
+			} `json:"data"`
+			SongInfoList []struct {
+				Mid    string   `json:"mid"`
+				Singer []Singer `json:"singer"`
+				Title  string   `json:"title"`
+			} `json:"songInfoList"`
+		} `json:"data"`
+	} `json:"detail"`
 }

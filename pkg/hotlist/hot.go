@@ -1050,18 +1050,31 @@ func GbkToUtf8(s []byte) ([]byte, error) {
 
 //ExecGetData 执行每个分类数据
 func ExecGetData(spider Spider) {
-	start := time.Now()
-	reflectValue := reflect.ValueOf(spider)
-	dataType := reflectValue.MethodByName("Get" + spider.DataType)
-	data := dataType.Call(nil)
-	originData := data[0].Interface().([]map[string]interface{})
-	if len(originData) > 0 {
-		cache.Caches(spider.DataType, originData, time.Minute*30)
+	var count = 0
+LOOP:
+	if count < 3 {
+		start := time.Now()
+		reflectValue := reflect.ValueOf(spider)
+		dataType := reflectValue.MethodByName("Get" + spider.DataType)
+		data := dataType.Call(nil)
+		originData := data[0].Interface().([]map[string]interface{})
+		seconds := time.Since(start).Seconds()
+		if len(originData) > 0 {
+			group.Done()
+			cache.Caches(spider.DataType, originData, time.Minute*30)
+			fmt.Printf("耗费 %.2fs 秒完成抓取%s", seconds, spider.DataType)
+			fmt.Println()
+		} else {
+			fmt.Printf("耗费 %.2fs 秒,抓取失败%s", seconds, spider.DataType)
+			fmt.Println()
+			//失败重试2次
+			time.Sleep(time.Duration(count+1) * 5 * time.Second)
+			count = count + 1
+			goto LOOP
+		}
+	} else {
+		group.Done()
 	}
-	group.Done()
-	seconds := time.Since(start).Seconds()
-	fmt.Printf("耗费 %.2fs 秒完成抓取%s", seconds, spider.DataType)
-	fmt.Println()
 }
 
 var group sync.WaitGroup
@@ -1105,5 +1118,4 @@ func All(isUpdate bool) {
 		go ExecGetData(spider)
 	}
 	group.Wait()
-	fmt.Print("完成抓取")
 }
