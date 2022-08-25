@@ -112,9 +112,14 @@ func (ctrl *BaseAPIController) BookInfo(c *gin.Context) {
 		return
 	}
 	if result.DownloadURL == "" {
-		fileSrc := "public/uploads/book/" + result.BookName + "_" + visitorId + ".txt"
+		ext := ".txt"
+		if strings.Contains(result.BookURL, "bookstack.cn") {
+			ext = ".epub"
+		}
+		//服务器目录结构和url访问不一样处理
+		fileSrc := "public/uploads/book/" + result.BookName + "_" + visitorId + ext
 		if !file.CheckExist(fileSrc) {
-			result.DownloadURL = "/uploads/book/" + result.BookName + "_" + visitorId + ".txt"
+			result.DownloadURL = "/uploads/book/" + result.BookName + "_" + visitorId + ext
 		}
 	}
 	response.JSON(c, gin.H{

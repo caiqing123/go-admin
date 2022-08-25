@@ -383,8 +383,8 @@ func (spider Spider) GetBaiDu() []map[string]interface{} {
 		return []map[string]interface{}{}
 	}
 	document.Find(".SN-WEB-waterfall-item .row-start-center").Each(func(i int, selection *goquery.Selection) {
-		s := selection.Find(".one-line-ellipsis")
-		text := s.Text()
+		s := selection.Find("span")
+		text := s.Eq(1).Text()
 		if text != "" {
 			allData = append(allData, map[string]interface{}{"title": text, "url": "https://m.baidu.com/s?word=" + urls.QueryEscape(text) + "&sa=fyb_news"})
 		}

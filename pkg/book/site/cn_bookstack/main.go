@@ -37,7 +37,7 @@ func Site() site.SiteA {
 					logger.Error(err.Error())
 				} else {
 					r.Volumes = nil
-					nodeContent := htmlquery.Find(doc, `//div[@class="article-menu-detail collapse-menu"]//ul//li/a`)
+					nodeContent := htmlquery.Find(doc, `//div[@class="article-menu"]//ul//li/a`)
 					var vol = store.Volume{
 						Name:     "正文",
 						Chapters: make([]store.Chapter, 0),

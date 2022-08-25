@@ -89,7 +89,7 @@ LOOP:
 	// 执行时间
 	latencyTime := endTime.Sub(startTime)
 
-	file.CronLog(time.Now().Format(timeFormat)+"[Job] JobCore %s http success , spend :%v , invokeTarget :%s", h.Name, latencyTime, h.InvokeTarget)
+	file.CronLog(time.Now().Format(timeFormat)+"[Job] JobCore %s http success , spend :%v , invokeTarget :%s , data :%s", h.Name, latencyTime, h.InvokeTarget, str)
 	return
 }
 

@@ -140,13 +140,9 @@ type NewSearchJSONStruct struct {
 }
 
 type NewSongInfoJSONStruct struct {
-	Status  int `json:"status"`
-	ErrCode int `json:"err_code"`
-	Data    struct {
-		Lyrics        string `json:"lyrics"`
-		Play_url      string `json:"play_url"`
-		PlayBackupURL string `json:"play_backup_url"`
-	} `json:"data"`
+	Status  int    `json:"status"`
+	ErrCode int    `json:"errcode"`
+	Url     string `json:"url"`
 }
 
 type CommendJSONStruct struct {

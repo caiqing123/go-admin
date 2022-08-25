@@ -13,7 +13,6 @@ import (
 	"api/pkg/book/site/cc_b520"
 	"api/pkg/book/site/cn_bookstack"
 	"api/pkg/book/site/me_zxcs"
-	"api/pkg/book/site/org_wanben"
 	"api/pkg/book/site/qb5_la"
 	"api/pkg/book/store"
 	"api/pkg/file"
@@ -32,7 +31,7 @@ func InitSites() {
 	addSiteFunc(cc_b520.Site)
 	addSiteFunc(me_zxcs.Site)
 	addSiteFunc(qb5_la.Site)
-	addSiteFunc(org_wanben.Site)
+	//addSiteFunc(org_wanben.Site)
 	addSiteFunc(cn_bookstack.Site)
 }
 

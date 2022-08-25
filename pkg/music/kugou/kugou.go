@@ -122,7 +122,7 @@ func NewKugou(songName string, p string) (ret []comm.Result, err error) {
 }
 
 func newGetPlayURL(albumID string, fileHash string) (playURL string, err error) {
-	fullURL := fmt.Sprintf("https://wwwapi.kugou.com/yy/index.php?r=play/getdata&callback=jQuery&mid=1&hash=%s&platid=4&album_id=%s", fileHash, albumID)
+	fullURL := fmt.Sprintf("https://m.kugou.com/app/i/getSongInfo.php?cmd=playInfo&hash=%s", fileHash)
 	req, _ := http.NewRequest("GET", fullURL, nil)
 	req.Header.Add("Host", "www.kugou.com")
 	resp, err := comm.Client.Do(req)
@@ -137,20 +137,16 @@ func newGetPlayURL(albumID string, fileHash string) (playURL string, err error) 
 		log.Printf("read body err: %v\n", err)
 		return
 	}
-
-	data := string(body)[len("jQuery(") : len(string(body))-2]
-
 	info := &NewSongInfoJSONStruct{}
-	err = json.Unmarshal([]byte(data), &info)
+	err = json.Unmarshal(body, &info)
 	if err != nil {
 		log.Printf("json unmarshal err: %v\n", err)
 		return
 	}
 	if info.Status == 1 {
-		if info.Data.Play_url != "" {
-			return info.Data.Play_url, nil
+		if info.Url != "" {
+			return info.Url, nil
 		}
-		return info.Data.PlayBackupURL, nil
 	}
 	return "", fmt.Errorf("not found")
 }

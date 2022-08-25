@@ -130,6 +130,8 @@ func BookInfo(BookURL string) (s *store.Store, err error) {
 		return
 	}
 
+	chapter.BookName = strings.Replace(chapter.BookName, " ", "", -1)
+
 	chapter.Author = strings.Replace(chapter.Author, "\u00a0", "", -1)
 
 	chapter.BookURL = BookURL
@@ -364,6 +366,11 @@ func Type1BookInfo(nameExpr, coverExpr, authorExpr, chapterExpr, DownloadExpr, D
 				})
 			}
 			s.Volumes = append(s.Volumes, vol)
+		} else {
+			s.Volumes = append(s.Volumes, store.Volume{
+				Name:     "正文",
+				Chapters: make([]store.Chapter, 0),
+			})
 		}
 		if after != nil {
 			s = after(s)
