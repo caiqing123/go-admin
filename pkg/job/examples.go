@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"api/pkg/config"
 	"api/pkg/hotlist"
-	"api/pkg/logger"
 )
 
 // InitJob 需要将定义的struct 添加到字典中；
@@ -30,17 +28,6 @@ func (t ExamplesOne) Exec(arg interface{}) error {
 
 	case string:
 		if arg.(string) != "" {
-			//logger重新每天0点初始化
-			logger.Logger = nil
-			logger.InitLogger(
-				config.GetString("log.filename"),
-				config.GetInt("log.max_size"),
-				config.GetInt("log.max_backup"),
-				config.GetInt("log.max_age"),
-				config.GetBool("log.compress"),
-				config.GetString("log.type"),
-				config.GetString("log.level"),
-			)
 			fmt.Println(str, arg.(string))
 		} else {
 			fmt.Println(str, "arg is nil")

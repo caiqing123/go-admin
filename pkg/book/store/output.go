@@ -53,6 +53,51 @@ var TxtTemplate = `书名：{{.BookName}}
 {{range .Text}}	{{.}}
 {{end}}{{end}}{{end}}`
 
+var MdTemplate = `
+{{- if not .Opts.NoEPUBMetadata -}}
+---
+{{.EPUBMeta | yaml_marshal -}}
+---
+{{end -}}
+
+书名: [{{.Store.BookName | markdown}}]({{.Store.BookURL}})
+
+作者: {{.Store.Author}}
+简介:
+{{range split .Store.Description "\n" -}}
+<p style="text-indent:2em">{{. | markdown}}</p>
+{{end -}}
+{{range .Store.Volumes }}
+# {{.Name | markdown}} {{if .IsVIP}}付费{{else}}免费{{end}}卷
+{{range .Chapters}}
+## {{.Name | markdown}}
+
+{{range .Text -}}
+<p style="text-indent:2em">{{. | markdown}}</p>
+{{end}}
+{{end}}{{end}}
+`
+
+type MarkdownEPUBmeta struct {
+	Title       string `yaml:"title"`
+	Description string `yaml:"description,omitempty"`
+	Author      string `yaml:"creator,omitempty"`
+	Lang        string `yaml:"lang,omitempty"`
+	Cover       string `yaml:"cover-image,omitempty"`
+}
+
+// Option is Convert output options
+type Option struct {
+	IgnoreCover    bool // 忽略封面
+	NoEPUBMetadata bool // 不添加EPUB元数据
+}
+
+type MarkdownTemplateValues struct {
+	Store    Store
+	Opts     Option
+	EPUBMeta MarkdownEPUBmeta
+}
+
 //EPUBConv epub格式
 func EPUBConv(src Store, outpath string) (err error) {
 	e := goepub.NewEpub(src.BookName)
@@ -162,48 +207,4 @@ func MarkdownEscape(s string) string {
 		s = strings.Replace(s, string(v), "\\"+string(v), -1)
 	}
 	return s
-}
-
-var MdTemplate = `
-{{- if not .Opts.NoEPUBMetadata -}}
----
-{{.EPUBMeta | yaml_marshal -}}
----
-{{end -}}
-
-书名: [{{.Store.BookName | markdown}}]({{.Store.BookURL}})
-
-作者: {{.Store.Author}}
-简介:
-{{range split .Store.Description "\n" -}}
-<p style="text-indent:2em">{{. | markdown}}</p>
-{{end -}}
-{{range .Store.Volumes }}
-# {{.Name | markdown}} {{if .IsVIP}}付费{{else}}免费{{end}}卷
-{{range .Chapters}}
-## {{.Name | markdown}}
-
-{{range .Text -}}
-<p style="text-indent:2em">{{. | markdown}}</p>
-{{end}}
-{{end}}{{end}}
-`
-
-type MarkdownEPUBmeta struct {
-	Title       string `yaml:"title"`
-	Description string `yaml:"description,omitempty"`
-	Author      string `yaml:"creator,omitempty"`
-	Lang        string `yaml:"lang,omitempty"`
-	Cover       string `yaml:"cover-image,omitempty"`
-}
-
-// Option is Convert output options
-type Option struct {
-	IgnoreCover    bool // 忽略封面
-	NoEPUBMetadata bool // 不添加EPUB元数据
-}
-type MarkdownTemplateValues struct {
-	Store    Store
-	Opts     Option
-	EPUBMeta MarkdownEPUBmeta
 }

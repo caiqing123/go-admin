@@ -4,7 +4,6 @@ package logger
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/fatih/color"
@@ -19,10 +18,10 @@ import (
 var Logger *zap.Logger
 
 // InitLogger 日志初始化
-func InitLogger(filename string, maxSize, maxBackup, maxAge int, compress bool, logType string, level string) {
+func InitLogger(filename string, maxSize, maxBackup, maxAge int, compress bool, level string) {
 
 	// 获取日志写入介质
-	writeSyncer := getLogWriter(filename, maxSize, maxBackup, maxAge, compress, logType)
+	writeSyncer := getLogWriter(filename, maxSize, maxBackup, maxAge, compress)
 
 	// 设置日志等级，具体请见 config/log.go 文件
 	logLevel := new(zapcore.Level)
@@ -65,7 +64,7 @@ func getEncoder() zapcore.Encoder {
 		StacktraceKey:  "stacktrace",
 		LineEnding:     zapcore.DefaultLineEnding,      // 每行日志的结尾添加 "\n"
 		EncodeLevel:    zapcore.CapitalLevelEncoder,    // 日志级别名称大写，如 ERROR、INFO
-		EncodeTime:     customTimeEncoder,              // 时间格式，我们自定义为 2006-01-02 15:04:05
+		EncodeTime:     customTimeEncoder,              // 时间格式， 2006-01-02 15:04:05
 		EncodeDuration: zapcore.SecondsDurationEncoder, // 执行时间，以秒为单位
 		EncodeCaller:   zapcore.ShortCallerEncoder,     // Caller 短格式，如：types/converter.go:17，长格式为绝对路径
 	}
@@ -88,13 +87,7 @@ func customTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 }
 
 // getLogWriter 日志记录介质。api 中使用了两种介质，os.Stdout 和文件
-func getLogWriter(filename string, maxSize, maxBackup, maxAge int, compress bool, logType string) zapcore.WriteSyncer {
-
-	// 如果配置了按照日期记录日志文件
-	if logType == "daily" {
-		logname := time.Now().Format("2006-01-02.log")
-		filename = strings.ReplaceAll(filename, "logs.log", logname)
-	}
+func getLogWriter(filename string, maxSize, maxBackup, maxAge int, compress bool) zapcore.WriteSyncer {
 
 	// 滚动日志，详见 config/log.go
 	lumberJackLogger := &lumberjack.Logger{

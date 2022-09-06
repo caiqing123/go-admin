@@ -14,7 +14,6 @@ func SetupLogger() {
 		config.GetInt("log.max_backup"),
 		config.GetInt("log.max_age"),
 		config.GetBool("log.compress"),
-		config.GetString("log.type"),
 		config.GetString("log.level"),
 	)
 }
