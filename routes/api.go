@@ -35,6 +35,7 @@ func RegisterAPIRoutes(r *gin.Engine) {
 	v1.GET("/music", middlewares.LimitIP(limiter.Limiter("80-M")), entertainment.Music)
 	v1.GET("/book", middlewares.LimitIP(limiter.Limiter("80-M")), entertainment.Book)
 	v1.GET("/book_info", middlewares.LimitIP(limiter.Limiter("80-M")), entertainment.BookInfo)
+	v1.GET("/book_chapter", middlewares.LimitIP(limiter.Limiter("80-M")), entertainment.BookChapter)
 	v1.GET("/news", middlewares.LimitIP(limiter.Limiter("80-M")), entertainment.News)
 	v1.GET("/download", middlewares.LimitIP(limiter.Limiter("100-M")), entertainment.Download)
 	v1.GET("/video", middlewares.LimitIP(limiter.Limiter("80-M")), entertainment.Video)

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	url1 "net/url"
 	"reflect"
 	"runtime"
 	"strings"
@@ -47,10 +48,13 @@ func Download(ctx context.Context, url string, id string, group string, hookfn f
 		return
 	}
 	site.DownloadWs(result, ctx, id, group, hookfn)
+
+	err = store.SourceConv(*result, "public/uploads/book/"+result.BookName+"_"+url1.QueryEscape(result.BookURL))
+
 	if strings.Contains(url, "bookstack.cn") {
-		err = store.EPUBConv(*result, "public/uploads/book/"+result.BookName+"_"+id)
+		err = store.EPUBConv(*result, "public/uploads/book/"+result.BookName+"_"+url1.QueryEscape(result.BookURL)+"_"+id)
 	} else {
-		err = store.TXTConv(*result, "public/uploads/book/"+result.BookName+"_"+id)
+		err = store.TXTConv(*result, "public/uploads/book/"+result.BookName+"_"+url1.QueryEscape(result.BookURL)+"_"+id)
 	}
 	if err != nil {
 		logger.Warn(err.Error())

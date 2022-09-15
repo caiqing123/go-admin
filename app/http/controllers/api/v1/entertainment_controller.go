@@ -12,6 +12,7 @@ import (
 
 	"api/pkg/book"
 	"api/pkg/book/site"
+	"api/pkg/book/store"
 	"api/pkg/cache"
 	"api/pkg/file"
 	"api/pkg/hotlist"
@@ -101,6 +102,7 @@ func (ctrl *BaseAPIController) Book(c *gin.Context) {
 func (ctrl *BaseAPIController) BookInfo(c *gin.Context) {
 	bookUrl := c.Query("url")
 	visitorId := c.Query("visitorId")
+	read := c.Query("read")
 	if len(strings.TrimSpace(bookUrl)) == 0 {
 		response.NormalVerificationError(c, "缺少参数")
 		return
@@ -117,11 +119,37 @@ func (ctrl *BaseAPIController) BookInfo(c *gin.Context) {
 			ext = ".epub"
 		}
 		//服务器目录结构和url访问不一样处理
-		fileSrc := "public/uploads/book/" + result.BookName + "_" + visitorId + ext
+		fileSrc := "public/uploads/book/" + result.BookName + "_" + url.QueryEscape(result.BookURL) + "_" + visitorId + ext
 		if !file.CheckExist(fileSrc) {
-			result.DownloadURL = "/uploads/book/" + result.BookName + "_" + visitorId + ext
+			result.DownloadURL = "/uploads/book/" + result.BookName + "_" + url.QueryEscape(result.BookURL) + "_" + visitorId + ext
 		}
 	}
+	if read == "1" {
+		books, _ := store.ReadSourceConv("public/uploads/book/" + result.BookName + "_" + url.QueryEscape(result.BookURL))
+		if books.BookName != "" {
+			result = &books
+		}
+	}
+	response.JSON(c, gin.H{
+		"data": result,
+	})
+}
+
+//BookChapter 章节详情
+func (ctrl *BaseAPIController) BookChapter(c *gin.Context) {
+	bookUrl := c.Query("url")
+	//visitorId := c.Query("visitorId")
+	if len(strings.TrimSpace(bookUrl)) == 0 {
+		response.NormalVerificationError(c, "缺少参数")
+		return
+	}
+	result, err := site.Chapter(bookUrl)
+	if err != nil {
+		logger.Error(err.Error())
+		response.Abort500(c, "出错")
+		return
+	}
+
 	response.JSON(c, gin.H{
 		"data": result,
 	})

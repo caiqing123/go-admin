@@ -121,10 +121,10 @@ func Chapter(expr string) func(ctx context.Context) (content []string, err error
 		}
 		for _, v := range nodeContent {
 			//删除元素
-			fi := htmlquery.FindOne(v, "//blockquote")
-			if fi != nil {
-				v.RemoveChild(fi)
-			}
+			//fi := htmlquery.FindOne(v, "//blockquote")
+			//if fi != nil {
+			//	v.RemoveChild(fi)
+			//}
 			h1 := htmlquery.FindOne(v, "//h1")
 			if h1 != nil {
 				v.RemoveChild(h1)

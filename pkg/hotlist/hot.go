@@ -280,7 +280,7 @@ func (spider Spider) GetHuPu() []map[string]interface{} {
 		fmt.Println("抓取" + spider.DataType + "失败")
 		return []map[string]interface{}{}
 	}
-	request.Header.Add("User-Agent", `Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Mobile Safari/537.36`)
+	request.Header.Add("User-Agent", `Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36`)
 	request.Header.Add("Upgrade-Insecure-Requests", `1`)
 	request.Header.Add("Referer", `https://bbs.hupu.com/`)
 	request.Header.Add("Host", `bbs.hupu.com`)
@@ -575,7 +575,7 @@ func (spider Spider) GetZHDaily() []map[string]interface{} {
 }
 
 func (spider Spider) GetSegmentfault() []map[string]interface{} {
-	url := "https://segmentfault.com/hottest"
+	url := "https://segmentfault.com/questions/hottest/weekly"
 	timeout := 5 * time.Second //超时时间5s
 	client := &http.Client{
 		Timeout: timeout,
@@ -603,10 +603,10 @@ func (spider Spider) GetSegmentfault() []map[string]interface{} {
 		fmt.Println("抓取" + spider.DataType + "失败")
 		return []map[string]interface{}{}
 	}
-	document.Find(".news-list .news__item-info").Each(func(i int, selection *goquery.Selection) {
-		s := selection.Find("a:nth-child(2)").First()
+	document.Find(".list-card-bg .list-group-item").Each(func(i int, selection *goquery.Selection) {
+		s := selection.Find(".q-item-title a")
 		url, boolUrl := s.Attr("href")
-		text := s.Find("h4").Text()
+		text := s.Text()
 		if len(text) != 0 {
 			if boolUrl {
 				allData = append(allData, map[string]interface{}{"title": text, "url": "https://segmentfault.com" + url})

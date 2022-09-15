@@ -29,3 +29,16 @@ message AddResponse {
 - 编译成功后会在当前目录生成protos/user.pb.go文件
 - protoc --go_out=plugins=grpc:. user.proto
 
+## chat
+
+### Server
+
+```bash
+go run .\main.go -s -p "password"
+```
+
+### Client
+
+```bash
+go run .\main.go -h "127.0.0.1:6262" -p "password" -n "username"
+```
