@@ -10,6 +10,7 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
@@ -33,11 +34,15 @@ func Client(host, pass, name string) *client {
 func (c *client) Run(ctx context.Context) error {
 	connCtx, cancel := context.WithTimeout(ctx, time.Second)
 	defer cancel()
-	conn, err := grpc.DialContext(connCtx, c.Host, grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.DialContext(connCtx, c.Host, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if err != nil {
 		return errors.WithMessage(err, "unable to connect")
 	}
-	defer conn.Close()
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+		}
+	}(conn)
 
 	c.ChatClient = chat.NewChatClient(conn)
 
@@ -67,7 +72,9 @@ func (c *client) stream(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	defer client.CloseSend()
+	defer func(client chat.Chat_StreamClient) {
+		_ = client.CloseSend()
+	}(client)
 
 	ClientLogf(time.Now(), "connected to stream")
 

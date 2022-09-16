@@ -124,9 +124,9 @@ type SongInfoJSONStruct struct {
 }
 
 type NewSearchJSONStruct struct {
-	Status    int    `json:"status"`
-	Error_msg string `json:"error_msg"`
-	Data      struct {
+	Status   int    `json:"status"`
+	ErrorMsg string `json:"error_msg"`
+	Data     struct {
 		Lists []struct {
 			AlbumID    string `json:"AlbumID"`
 			AlbumName  string `json:"AlbumName"`
@@ -136,7 +136,7 @@ type NewSearchJSONStruct struct {
 			SingerName string `json:"SingerName"`
 		} `json:"lists"`
 	} `json:"data"`
-	Error_code int `json:"error_code"`
+	ErrorCode int `json:"error_code"`
 }
 
 type NewSongInfoJSONStruct struct {

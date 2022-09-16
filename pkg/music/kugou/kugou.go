@@ -109,7 +109,7 @@ func NewKugou(songName string, p string) (ret []comm.Result, err error) {
 		log.Println("获取json信息失败")
 		return nil, fmt.Errorf("获取json信息失败")
 	}
-	if info.Status == 1 && info.Error_msg == "" {
+	if info.Status == 1 && info.ErrorMsg == "" {
 		for index, result := range info.Data.Lists {
 			downloadUrl, _ := newGetPlayURL(result.AlbumID, result.FileHash)
 			ret = append(ret, comm.Result{Title: strconv.Itoa(index+1) + ". " + result.SongName + " - [ " + result.SingerName + " ]", Author: result.SingerName,

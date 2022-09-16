@@ -7,7 +7,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"golang.org/x/net/context"
 )
@@ -15,10 +14,7 @@ import (
 const timeFormat = "03:04:05 PM"
 
 func tsToTime(ts *timestamp.Timestamp) time.Time {
-	t, err := ptypes.Timestamp(ts)
-	if err != nil {
-		return time.Now()
-	}
+	t := ts.AsTime()
 	return t.In(time.Local)
 }
 

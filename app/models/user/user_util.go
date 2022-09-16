@@ -39,7 +39,7 @@ func GetByMulti(loginID string) (userModel User) {
 	return
 }
 
-// GetByMulti 通过 用户名 来获取用户
+// GetByName GetByMulti 通过 用户名 来获取用户
 func GetByName(loginID string) (userModel User) {
 	database.DB.
 		Where("name = ?", loginID).

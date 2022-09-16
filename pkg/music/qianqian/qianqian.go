@@ -111,7 +111,7 @@ func getPlayURL(rid string) (playURL string, err error) {
 		if info.Data.Path != "" {
 			return info.Data.Path, nil
 		}
-		return info.Data.Trail_audio_info.Path, nil
+		return info.Data.TrailAudioInfo.Path, nil
 	}
 
 	return "", fmt.Errorf("获取歌曲链接失败")

@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -12,7 +14,6 @@ import (
 
 	"api/pkg/book"
 	"api/pkg/book/site"
-	"api/pkg/book/store"
 	"api/pkg/cache"
 	"api/pkg/file"
 	"api/pkg/hotlist"
@@ -102,7 +103,6 @@ func (ctrl *BaseAPIController) Book(c *gin.Context) {
 func (ctrl *BaseAPIController) BookInfo(c *gin.Context) {
 	bookUrl := c.Query("url")
 	visitorId := c.Query("visitorId")
-	read := c.Query("read")
 	if len(strings.TrimSpace(bookUrl)) == 0 {
 		response.NormalVerificationError(c, "缺少参数")
 		return
@@ -113,23 +113,26 @@ func (ctrl *BaseAPIController) BookInfo(c *gin.Context) {
 		response.Abort500(c, "出错")
 		return
 	}
+
+	md5Ctx := md5.New()
+	md5Ctx.Write([]byte(result.BookURL))
+	md5s := hex.EncodeToString(md5Ctx.Sum(nil))
 	if result.DownloadURL == "" {
 		ext := ".txt"
 		if strings.Contains(result.BookURL, "bookstack.cn") {
 			ext = ".epub"
 		}
 		//服务器目录结构和url访问不一样处理
-		fileSrc := "public/uploads/book/" + result.BookName + "_" + url.QueryEscape(result.BookURL) + "_" + visitorId + ext
+		fileSrc := "public/uploads/book/" + result.BookName + "_" + md5s + "_" + visitorId + ext
 		if !file.CheckExist(fileSrc) {
-			result.DownloadURL = "/uploads/book/" + result.BookName + "_" + url.QueryEscape(result.BookURL) + "_" + visitorId + ext
+			result.DownloadURL = "/uploads/book/" + result.BookName + "_" + md5s + "_" + visitorId + ext
 		}
 	}
-	if read == "1" {
-		books, _ := store.ReadSourceConv("public/uploads/book/" + result.BookName + "_" + url.QueryEscape(result.BookURL))
-		if books.BookName != "" {
-			result = &books
-		}
+
+	if !file.CheckExist("public/uploads/book/" + result.BookName + "_" + md5s + ".json") {
+		result.CacheLoadURL = "/uploads/book/" + result.BookName + "_" + md5s + ".json"
 	}
+
 	response.JSON(c, gin.H{
 		"data": result,
 	})

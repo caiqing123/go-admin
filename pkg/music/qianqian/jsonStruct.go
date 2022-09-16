@@ -29,8 +29,8 @@ type GetPlayURLJSONStruct struct {
 	Errmsg string `json:"errmsg"`
 	Errno  int    `json:"errno"`
 	Data   struct {
-		Path             string `json:"path"`
-		Trail_audio_info struct {
+		Path           string `json:"path"`
+		TrailAudioInfo struct {
 			Path string `json:"path"`
 		} `json:"trail_audio_info"`
 	} `json:"data"`

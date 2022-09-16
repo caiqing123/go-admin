@@ -1,6 +1,7 @@
 package store
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io/ioutil"
@@ -211,24 +212,24 @@ func MarkdownEscape(s string) string {
 
 //SourceConv 源格式写入
 func SourceConv(src Store, outpath string) (err error) {
-	b, err := yaml.Marshal(src)
+	b, err := json.Marshal(src)
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(outpath+".cache", b, 0775)
+	err = ioutil.WriteFile(outpath+".json", b, 0775)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-//SourceConv 源格式读取
+// ReadSourceConv SourceConv 源格式读取
 func ReadSourceConv(path string) (book Store, err error) {
-	data, err := ioutil.ReadFile(path + ".cache")
+	data, err := ioutil.ReadFile(path + ".json")
 	if err != nil {
 		return book, err
 	}
-	err = yaml.Unmarshal(data, &book)
+	err = json.Unmarshal(data, &book)
 
 	if err != nil {
 		return book, err

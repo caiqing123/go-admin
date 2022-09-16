@@ -2,10 +2,11 @@ package book
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	url1 "net/url"
 	"reflect"
 	"runtime"
 	"strings"
@@ -49,12 +50,16 @@ func Download(ctx context.Context, url string, id string, group string, hookfn f
 	}
 	site.DownloadWs(result, ctx, id, group, hookfn)
 
-	err = store.SourceConv(*result, "public/uploads/book/"+result.BookName+"_"+url1.QueryEscape(result.BookURL))
+	md5Ctx := md5.New()
+	md5Ctx.Write([]byte(result.BookURL))
+	md5s := hex.EncodeToString(md5Ctx.Sum(nil))
+
+	err = store.SourceConv(*result, "public/uploads/book/"+result.BookName+"_"+md5s)
 
 	if strings.Contains(url, "bookstack.cn") {
-		err = store.EPUBConv(*result, "public/uploads/book/"+result.BookName+"_"+url1.QueryEscape(result.BookURL)+"_"+id)
+		err = store.EPUBConv(*result, "public/uploads/book/"+result.BookName+"_"+md5s+"_"+id)
 	} else {
-		err = store.TXTConv(*result, "public/uploads/book/"+result.BookName+"_"+url1.QueryEscape(result.BookURL)+"_"+id)
+		err = store.TXTConv(*result, "public/uploads/book/"+result.BookName+"_"+md5s+"_"+id)
 	}
 	if err != nil {
 		logger.Warn(err.Error())
