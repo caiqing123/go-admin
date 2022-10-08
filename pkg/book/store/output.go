@@ -223,7 +223,7 @@ func SourceConv(src Store, outpath string) (err error) {
 	return nil
 }
 
-// ReadSourceConv SourceConv 源格式读取
+// ReadSourceConv SourceConv
 func ReadSourceConv(path string) (book Store, err error) {
 	data, err := ioutil.ReadFile(path + ".json")
 	if err != nil {

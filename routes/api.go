@@ -30,16 +30,20 @@ func RegisterAPIRoutes(r *gin.Engine) {
 		})
 	})
 
-	// 娱乐
-	entertainment := new(controllers.EntertainmentController)
-	v1.GET("/music", middlewares.LimitIP(limiter.Limiter("80-M")), entertainment.Music)
-	v1.GET("/book", middlewares.LimitIP(limiter.Limiter("80-M")), entertainment.Book)
-	v1.GET("/book_info", middlewares.LimitIP(limiter.Limiter("80-M")), entertainment.BookInfo)
-	v1.GET("/book_chapter", middlewares.LimitIP(limiter.Limiter("80-M")), entertainment.BookChapter)
-	v1.GET("/news", middlewares.LimitIP(limiter.Limiter("80-M")), entertainment.News)
-	v1.GET("/download", middlewares.LimitIP(limiter.Limiter("100-M")), entertainment.Download)
-	v1.GET("/video", middlewares.LimitIP(limiter.Limiter("80-M")), entertainment.Video)
-	v1.GET("/video_type", middlewares.LimitIP(limiter.Limiter("80-M")), entertainment.VideoTYpe)
+	// 全局限流中间件：这里是所有 API （根据 IP）请求加起来。
+	v1.Use(middlewares.LimitIP(limiter.Limiter("80-M")))
+	{
+		// 娱乐
+		entertainment := new(controllers.EntertainmentController)
+		v1.GET("/music", entertainment.Music)
+		v1.GET("/book", entertainment.Book)
+		v1.GET("/book_info", entertainment.BookInfo)
+		v1.GET("/book_chapter", entertainment.BookChapter)
+		v1.GET("/news", entertainment.News)
+		v1.GET("/download", entertainment.Download)
+		v1.GET("/video", entertainment.Video)
+		v1.GET("/video_type", entertainment.VideoTYpe)
+	}
 
 	// 全局限流中间件：这里是所有 API （根据 IP）请求加起来。
 	v1.Use(middlewares.LimitIP(limiter.Limiter("2000-M")))

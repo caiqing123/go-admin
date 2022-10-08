@@ -617,7 +617,7 @@ func (spider Spider) GetSegmentfault() []map[string]interface{} {
 }
 
 func (spider Spider) GetHacPai() []map[string]interface{} {
-	url := "https://hacpai.com/domain/play"
+	url := "https://ld246.com/domain/play"
 	timeout := 5 * time.Second //超时时间5s
 	client := &http.Client{
 		Timeout: timeout,
@@ -856,21 +856,22 @@ func (spider Spider) GetCSDN() []map[string]interface{} {
 	return allData
 }
 
-// GetWeiXin https://weixin.sogou.com/?pid=sogou-wsse-721e049e9903c3a7&kw=
+// GetWeiXin https://gw.newrank.cn/api/appMain/homePage/getHotVideoContentData?type=WX&size=24
 func (spider Spider) GetWeiXin() []map[string]interface{} {
-	url := "https://weixin.sogou.com/?pid=sogou-wsse-721e049e9903c3a7&kw="
+	url := "https://gw.newrank.cn/api/appMain/homePage/getHotVideoContentData?type=WX&size=24"
 	timeout := 5 * time.Second //超时时间5s
 	client := &http.Client{
 		Timeout: timeout,
 	}
 	var Body io.Reader
-	request, err := http.NewRequest("GET", url, Body)
+	request, err := http.NewRequest("POST", url, Body)
 	if err != nil {
 		fmt.Println("抓取" + spider.DataType + "失败")
 		return []map[string]interface{}{}
 	}
 	request.Header.Add("User-Agent", `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36`)
 	request.Header.Add("Upgrade-Insecure-Requests", `1`)
+	request.Header.Add("n-token", `3b2f8f99af0545cc989cfae76477d9bf`)
 	res, err := client.Do(request)
 
 	if err != nil {
@@ -878,26 +879,28 @@ func (spider Spider) GetWeiXin() []map[string]interface{} {
 		return []map[string]interface{}{}
 	}
 	defer res.Body.Close()
-	//str, _ := ioutil.ReadAll(res.Body)
-	//fmt.Println(string(str))
+	str, _ := ioutil.ReadAll(res.Body)
 	var allData []map[string]interface{}
-	document, err := goquery.NewDocumentFromReader(res.Body)
+
+	type JSONStruct struct {
+		Value []struct {
+			Title string `json:"title"`
+			Url   string `json:"url"`
+		} `json:"value"`
+		Success bool `json:"success"`
+	}
+
+	info := &JSONStruct{}
+	err = json.Unmarshal(str, &info)
 	if err != nil {
-		fmt.Println("抓取" + spider.DataType + "失败")
+		fmt.Println("获取json信息失败" + spider.DataType)
 		return []map[string]interface{}{}
 	}
-	document.Find(".news-list li").Each(func(i int, selection *goquery.Selection) {
-		s := selection.Find("h3 a").First()
-		url, boolUrl := s.Attr("href")
-		text := s.Text()
-		if len(text) != 0 {
-			if boolUrl {
-				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": text, "url": url})
-				}
-			}
+	if info.Success == true && len(info.Value) != 0 {
+		for _, result := range info.Value {
+			allData = append(allData, map[string]interface{}{"title": result.Title, "url": result.Url})
 		}
-	})
+	}
 	return allData
 }
 
