@@ -15,6 +15,8 @@ type SearchJSONStruct struct {
 				Pic            string `json:"pic"`
 			} `json:"artist"`
 			Title string `json:"title"`
+			Pic   string `json:"pic"`
+			Lyric string `json:"lyric"`
 			Id    string `json:"id"`
 			IsVip int    `json:"isVip"`
 		} `json:"typeTrack"`
@@ -49,6 +51,8 @@ type CommendJSONStruct struct {
 				Gender         string `json:"gender"`
 				Pic            string `json:"pic"`
 			} `json:"artist"`
+			Pic   string `json:"pic"`
+			Lyric string `json:"lyric"`
 			Title string `json:"title"`
 			Id    string `json:"id"`
 			IsVip int    `json:"isVip"`

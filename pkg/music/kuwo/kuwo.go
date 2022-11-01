@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"time"
 
+	nhttp "api/pkg/http"
 	"api/pkg/music/comm"
 )
 
@@ -54,9 +55,16 @@ func Kuwo(songName string, p string) (ret []comm.Result, err error) {
 	if info.Code == 200 {
 		for index, result := range info.Data.List {
 			downloadUrl, _ := getPlayURL(result.Rid)
-			ret = append(ret, comm.Result{Title: strconv.Itoa(index+1) + ". " + result.Name + " - [ " + result.Artist + " ]", Author: result.Artist,
+			LrcData, _ := nhttp.Get("https://m.kuwo.cn/newh5/singles/songinfoandlrc?musicId=" + strconv.Itoa(result.Rid))
+			ret = append(ret, comm.Result{
+				Title:    strconv.Itoa(index+1) + ". " + result.Name + " - [ " + result.Artist + " ]",
+				Author:   result.Artist,
 				SongName: result.Name,
-				SongURL:  downloadUrl})
+				SongURL:  downloadUrl,
+				LrcData:  LrcData,
+				ImgURL:   result.Pic120,
+				PicURL:   result.Pic,
+			})
 		}
 		return ret, nil
 	}
@@ -132,9 +140,14 @@ func commend() (ret []comm.Result, err error) {
 	}
 	for index, result := range info.Data.MusicList {
 		downloadUrl, _ := getPlayURL(result.Rid)
+		LrcData, _ := nhttp.Get("https://m.kuwo.cn/newh5/singles/songinfoandlrc?musicId=" + strconv.Itoa(result.Rid))
 		ret = append(ret, comm.Result{Title: strconv.Itoa(index+1) + ". " + result.Name + " - [ " + result.Artist + " ]", Author: result.Artist,
 			SongName: result.Name,
-			SongURL:  downloadUrl})
+			SongURL:  downloadUrl,
+			LrcData:  LrcData,
+			ImgURL:   result.Pic120,
+			PicURL:   result.Pic,
+		})
 	}
 	return ret, nil
 }

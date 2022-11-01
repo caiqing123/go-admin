@@ -248,10 +248,17 @@ type CommendJSONStruct struct {
 				Title          string `json:"title"`
 			} `json:"data"`
 			SongInfoList []struct {
-				Mid    string   `json:"mid"`
-				Singer []Singer `json:"singer"`
-				Title  string   `json:"title"`
+				Mid    string      `json:"mid"`
+				Singer []Singer    `json:"singer"`
+				Album  SearchAlbum `json:"album"`
+				Title  string      `json:"title"`
 			} `json:"songInfoList"`
 		} `json:"data"`
 	} `json:"detail"`
+}
+
+type LyricJSONStruct struct {
+	Code  int    `json:"code"`
+	Lyric string `json:"lyric"`
+	Trans string `json:"trans"`
 }

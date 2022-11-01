@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"strconv"
 
+	nhttp "api/pkg/http"
 	"api/pkg/music/comm"
 )
 
@@ -53,9 +54,14 @@ func Migu(songName string, p string) (ret []comm.Result, err error) {
 	if info.Code == "000000" && len(info.SongResultData.Result) > 0 {
 		for index, result := range info.SongResultData.Result {
 			downloadUrl, _ := getPlayURL(result.CopyrightID)
+			LrcData, _ := nhttp.Get(result.LyricURL)
 			ret = append(ret, comm.Result{Title: strconv.Itoa(index+1) + ". " + result.Name + " - [ " + result.Singers[0].Name + " ]", Author: result.Singers[0].Name,
 				SongName: result.Name,
-				SongURL:  downloadUrl})
+				SongURL:  downloadUrl,
+				LrcData:  LrcData,
+				ImgURL:   result.ImgItems[2].Img,
+				PicURL:   result.ImgItems[0].Img,
+			})
 
 		}
 		return ret, nil
@@ -100,9 +106,14 @@ func commend() (ret []comm.Result, err error) {
 		pathname := &url.URL{}
 		pathname, err = url.Parse(option)
 		downloadUrl := "https://freetyst.nf.migu.cn/" + pathname.Path
+		LrcData, _ := nhttp.Get(result.ObjectInfo.LrcUrl)
 		ret = append(ret, comm.Result{Title: strconv.Itoa(index+1) + ". " + result.ObjectInfo.SongName + " - [ " + result.ObjectInfo.Singer + " ]", Author: result.ObjectInfo.Singer,
 			SongName: result.ObjectInfo.SongName,
-			SongURL:  downloadUrl})
+			SongURL:  downloadUrl,
+			LrcData:  LrcData,
+			PicURL:   result.ObjectInfo.AlbumImgs[0].Img,
+			ImgURL:   result.ObjectInfo.AlbumImgs[2].Img,
+		})
 	}
 	return ret, nil
 }

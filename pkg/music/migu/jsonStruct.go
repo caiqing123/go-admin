@@ -109,8 +109,15 @@ type CommendJSONStruct struct {
 		ColumnTitle string `json:"columnTitle"`
 		Contents    []struct {
 			ObjectInfo struct {
-				SongName       string `json:"songName"`
-				Singer         string `json:"singer"`
+				SongName    string `json:"songName"`
+				Singer      string `json:"singer"`
+				LandscapImg string `json:"landscapImg"`
+				Length      string `json:"length"`
+				LrcUrl      string `json:"lrcUrl"`
+				AlbumImgs   []struct {
+					ImgSizeType string `json:"imgSizeType"`
+					Img         string `json:"img"`
+				} `json:"albumImgs"`
 				NewRateFormats []struct {
 					ResourceType         string `json:"resourceType"`
 					FormatType           string `json:"formatType"`

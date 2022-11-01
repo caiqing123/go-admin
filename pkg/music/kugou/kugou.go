@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strconv"
 
+	nhttp "api/pkg/http"
 	"api/pkg/music/comm"
 )
 
@@ -112,9 +113,16 @@ func NewKugou(songName string, p string) (ret []comm.Result, err error) {
 	if info.Status == 1 && info.ErrorMsg == "" {
 		for index, result := range info.Data.Lists {
 			downloadUrl, _ := newGetPlayURL(result.AlbumID, result.FileHash)
+			Data, _ := nhttp.Get(fmt.Sprintf("https://wwwapi.kugou.com/yy/index.php?r=play/getdata&hash=%s&album_id=%s&mid=1&platid=4", result.FileHash, result.AlbumID))
+			LrcData := &LrcDataJSONStruct{}
+			_ = json.Unmarshal([]byte(Data), &LrcData)
 			ret = append(ret, comm.Result{Title: strconv.Itoa(index+1) + ". " + result.SongName + " - [ " + result.SingerName + " ]", Author: result.SingerName,
 				SongName: result.SongName,
-				SongURL:  downloadUrl})
+				SongURL:  downloadUrl,
+				LrcData:  LrcData.Data.Lyrics,
+				ImgURL:   LrcData.Data.Img,
+				PicURL:   LrcData.Data.Img,
+			})
 		}
 		return ret, nil
 	}
@@ -177,9 +185,16 @@ func commend() (ret []comm.Result, err error) {
 	}
 	for index, result := range info.Data {
 		downloadUrl, _ := newGetPlayURL(result.AlbumID, result.Hash)
+		Data, _ := nhttp.Get(fmt.Sprintf("https://wwwapi.kugou.com/yy/index.php?r=play/getdata&hash=%s&album_id=%s&mid=1&platid=4", result.Hash, result.AlbumID))
+		LrcData := &LrcDataJSONStruct{}
+		_ = json.Unmarshal([]byte(Data), &LrcData)
 		ret = append(ret, comm.Result{Title: strconv.Itoa(index+1) + ". " + result.SongName + " - [ " + result.SingerName + " ]", Author: result.SingerName,
 			SongName: result.SongName,
-			SongURL:  downloadUrl})
+			SongURL:  downloadUrl,
+			LrcData:  LrcData.Data.Lyrics,
+			ImgURL:   LrcData.Data.Img,
+			PicURL:   LrcData.Data.Img,
+		})
 	}
 	return ret, nil
 }

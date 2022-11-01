@@ -18,5 +18,8 @@ type Result struct {
 	Author         string `json:"author"`
 	SongName       string `json:"song_name"`
 	SongURL        string `json:"song_url"`
+	LrcData        string `json:"Lrc_data"`
+	ImgURL         string `json:"img_url"`
+	PicURL         string `json:"pic_url"`
 	SongSilkBase64 string `json:"song_silk_base64"`
 }

@@ -153,7 +153,18 @@ type CommendJSONStruct struct {
 				ID   int    `json:"id"`
 				Name string `json:"name"`
 			} `json:"ar"`
+			Al struct {
+				ID     int    `json:"id"`
+				PicUrl string `json:"picUrl"`
+			} `json:"al"`
 		} `json:"tracks"`
 	} `json:"playlist"`
+	Code int `json:"code"`
+}
+
+type LrcDataJSONStruct struct {
+	Lrc struct {
+		Lyric string `json:"lyric"`
+	} `json:"lrc"`
 	Code int `json:"code"`
 }

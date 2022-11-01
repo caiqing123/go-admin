@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"time"
 
+	nhttp "api/pkg/http"
 	"api/pkg/music/comm"
 )
 
@@ -67,9 +68,14 @@ func Qianqian(songName string, p string) (ret []comm.Result, err error) {
 			} else {
 				Author = result.Artist[0].Name
 			}
+			LrcData, _ := nhttp.Get(result.Lyric)
 			ret = append(ret, comm.Result{Title: strconv.Itoa(index+1) + ". " + result.Title + " - [ " + Author + " ]", Author: Author,
 				SongName: result.Title,
-				SongURL:  downloadUrl})
+				SongURL:  downloadUrl,
+				LrcData:  LrcData,
+				ImgURL:   result.Pic,
+				PicURL:   result.Pic,
+			})
 		}
 		return ret, nil
 	}
@@ -162,9 +168,14 @@ func commend() (ret []comm.Result, err error) {
 		} else {
 			Author = result.Artist[0].Name
 		}
+		LrcData, _ := nhttp.Get(result.Lyric)
 		ret = append(ret, comm.Result{Title: strconv.Itoa(index+1) + ". " + result.Title + " - [ " + Author + " ]", Author: Author,
 			SongName: result.Title,
-			SongURL:  downloadUrl})
+			SongURL:  downloadUrl,
+			LrcData:  LrcData,
+			ImgURL:   result.Pic,
+			PicURL:   result.Pic,
+		})
 	}
 	return ret, nil
 }

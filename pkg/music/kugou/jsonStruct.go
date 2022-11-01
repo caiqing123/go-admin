@@ -154,3 +154,10 @@ type CommendJSONStruct struct {
 	} `json:"data"`
 	Src string `json:"src"`
 }
+
+type LrcDataJSONStruct struct {
+	Data struct {
+		Img    string `json:"img"`
+		Lyrics string `json:"lyrics"`
+	} `json:"data"`
+}

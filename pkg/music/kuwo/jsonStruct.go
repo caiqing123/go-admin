@@ -70,6 +70,8 @@ type CommendJSONStruct struct {
 			Artist string `json:"artist"`
 			Rid    int    `json:"rid"`
 			Name   string `json:"name"`
+			Pic    string `json:"pic"`
+			Pic120 string `json:"pic120"`
 		} `json:"musicList"`
 	} `json:"data"`
 	Code int `json:"code"`

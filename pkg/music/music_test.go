@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"api/pkg/music/kugou"
+	"api/pkg/music/qqmusic"
 )
 
 func TestMusic(*testing.T) {
-	d, err := kugou.NewKugou("qq", "1")
+	d, err := qqmusic.QQMusic("qq", "1")
 	fmt.Println(err)
 	fmt.Println(d)
 }

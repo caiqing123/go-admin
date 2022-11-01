@@ -1,6 +1,7 @@
 package qqmusic
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -45,9 +46,14 @@ func QQMusic(songName string, p string) (ret []comm.Result, err error) {
 	if info.Code == 0 {
 		for index, result := range info.Req0.Data.Body.Song.List {
 			downloadUrl, _ := getPlayURL(result.Mid)
+			img := "https://y.gtimg.cn/music/photo_new/T002R300x300M000" + result.Album.Mid + ".jpg"
 			ret = append(ret, comm.Result{Title: strconv.Itoa(index+1) + ". " + result.Name + " - [ " + result.Singer[0].Name + " ]", Author: result.Singer[0].Name,
 				SongName: result.Name,
-				SongURL:  downloadUrl})
+				SongURL:  downloadUrl,
+				LrcData:  getLyric(result.Mid),
+				ImgURL:   img,
+				PicURL:   img,
+			})
 		}
 		return ret, nil
 	}
@@ -160,9 +166,14 @@ func commend() (ret []comm.Result, err error) {
 
 	for index, result := range info.Detail.Data.SongInfoList {
 		downloadUrl, _ := getPlayURL(result.Mid)
+		img := "https://y.gtimg.cn/music/photo_new/T002R300x300M000" + result.Album.Mid + ".jpg"
 		ret = append(ret, comm.Result{Title: strconv.Itoa(index+1) + ". " + result.Title + " - [ " + result.Singer[0].Name + " ]", Author: result.Singer[0].Name,
 			SongName: result.Title,
-			SongURL:  downloadUrl})
+			SongURL:  downloadUrl,
+			LrcData:  getLyric(result.Mid),
+			ImgURL:   img,
+			PicURL:   img,
+		})
 	}
 	return ret, nil
 }
@@ -207,4 +218,34 @@ func getNewPlayURL(mid string) (playURL string, err error) {
 		}
 	}
 	return "", fmt.Errorf("not found")
+}
+
+func getLyric(mid string) (lyric string) {
+	if mid == "" {
+		return ""
+	}
+	fullURL := fmt.Sprintf("https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg?songmid=%s&g_tk=5381&loginUin=0&hostUin=0&format=json&inCharset=utf8&outCharset=utf-8&platform=yqq", mid)
+	req, _ := http.NewRequest("GET", fullURL, nil)
+	req.Header.Add("Referer", "https://y.qq.com/portal/player.html")
+	resp, err := comm.Client.Do(req)
+	if err != nil {
+		return ""
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return ""
+	}
+
+	info := &LyricJSONStruct{}
+	err = json.Unmarshal(body, &info)
+	if err != nil {
+		return ""
+	}
+	if info.Code == 0 {
+		Lyric, _ := base64.StdEncoding.DecodeString(info.Lyric)
+		return string(Lyric)
+	}
+	return ""
 }
