@@ -61,14 +61,24 @@ func (ctrl *BaseAPIController) Music(c *gin.Context) {
 		response.NormalVerificationError(c, "无效的参数")
 		return
 	}
-	ret, err := sourcer(name, p)
-	if err != nil {
-		logger.Error(err.Error())
-		response.Abort500(c, err.Error())
+
+	data := cache.Get(option + name + p)
+	if data == "" {
+		ret, err := sourcer(name, p)
+		if err != nil {
+			logger.Error(err.Error())
+			response.Abort500(c, err.Error())
+			return
+		}
+		cache.Set(option+name+p, ret, time.Minute*120)
+		response.JSON(c, gin.H{
+			"data": ret,
+		})
 		return
 	}
+
 	response.JSON(c, gin.H{
-		"data": ret,
+		"data": data,
 	})
 }
 
