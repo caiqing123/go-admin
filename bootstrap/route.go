@@ -102,4 +102,5 @@ func setup404Handler(router *gin.Engine) {
 
 func StaticFileRouter(r *gin.RouterGroup) {
 	r.Static("/uploads", "./public/uploads")
+	r.Static("/975e38ed00fdbead", "./assets")
 }

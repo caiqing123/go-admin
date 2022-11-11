@@ -48,11 +48,12 @@ func Download(ctx context.Context, url string, id string, group string, hookfn f
 		logger.Warn(err.Error())
 		return
 	}
-	site.DownloadWs(result, ctx, id, group, hookfn)
 
 	md5Ctx := md5.New()
 	md5Ctx.Write([]byte(result.BookURL))
 	md5s := hex.EncodeToString(md5Ctx.Sum(nil))
+
+	site.DownloadWs(result, ctx, id, group, hookfn, "public/uploads/book/"+result.BookName+"_"+md5s+"_"+id)
 
 	err = store.SourceConv(*result, "public/uploads/book/"+result.BookName+"_"+md5s)
 

@@ -12,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"api/pkg/app"
 	"api/pkg/book"
 	"api/pkg/book/site"
 	"api/pkg/cache"
@@ -135,12 +136,12 @@ func (ctrl *BaseAPIController) BookInfo(c *gin.Context) {
 		//服务器目录结构和url访问不一样处理
 		fileSrc := "public/uploads/book/" + result.BookName + "_" + md5s + "_" + visitorId + ext
 		if !file.CheckExist(fileSrc) {
-			result.DownloadURL = "/uploads/book/" + result.BookName + "_" + md5s + "_" + visitorId + ext
+			result.DownloadURL = app.URL("/uploads/book/" + result.BookName + "_" + md5s + "_" + visitorId + ext)
 		}
 	}
 
 	if !file.CheckExist("public/uploads/book/" + result.BookName + "_" + md5s + ".json") {
-		result.CacheLoadURL = "/uploads/book/" + result.BookName + "_" + md5s + ".json"
+		result.CacheLoadURL = app.URL("/uploads/book/" + result.BookName + "_" + md5s + ".json")
 	}
 
 	response.JSON(c, gin.H{

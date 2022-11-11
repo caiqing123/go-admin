@@ -6,9 +6,11 @@ import (
 	"io"
 	"log"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
+	"api/pkg/app"
 	"api/pkg/book/store"
 )
 
@@ -151,7 +153,7 @@ func Download(chapter *store.Store) {
 	}
 }
 
-func DownloadWs(chapter *store.Store, ctx context.Context, id string, group string, hookfn func(context.Context, string, string, []byte)) {
+func DownloadWs(chapter *store.Store, ctx context.Context, id string, group string, hookfn func(context.Context, string, string, []byte), path string) {
 	ssss := &SyncStore{
 		Store: chapter,
 	}
@@ -168,7 +170,12 @@ func DownloadWs(chapter *store.Store, ctx context.Context, id string, group stri
 		}
 	}
 
-	src := `{"progress":"%v","type":"progress","book_id":"` + chapter.BookName + "_" + id + `"}`
+	ext := ".txt"
+	if strings.Contains(chapter.BookURL, "bookstack.cn") {
+		ext = ".epub"
+	}
+
+	src := `{"progress":"%v","type":"progress","book_id":"` + chapter.BookName + "_" + id + `","download_url":"` + app.URL(path+ext) + `"}`
 
 	if isDone != 0 {
 		hookfn(ctx, id, group, []byte(fmt.Sprintf(src, "100")))

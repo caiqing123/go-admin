@@ -47,7 +47,7 @@ func (t ExamplesNews) Exec(arg interface{}) error {
 	fmt.Println(str, arg.(string))
 	switch arg.(type) {
 	case string:
-		hotlist.All(true)
+		go hotlist.All(true)
 		break
 	}
 
