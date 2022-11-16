@@ -8,7 +8,7 @@ import (
 func TestFileGet(t *testing.T) {
 
 	spider := Spider{DataType: "BaiDu"}
-	fmt.Println(spider.GetWeiXin())
+	fmt.Println(spider.GetSegmentfault())
 	//All()
 
 	//allData := []string{

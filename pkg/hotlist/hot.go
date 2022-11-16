@@ -1094,7 +1094,7 @@ func All(isUpdate bool) {
 		"GuoKr",
 		"HuXiu",
 		"ZHDaily",
-		"Segmentfault",
+		//"Segmentfault",
 		"WYNews",
 		"WaterAndWood",
 		"HacPai",
