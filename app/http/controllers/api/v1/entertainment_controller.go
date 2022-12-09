@@ -171,8 +171,10 @@ func (ctrl *BaseAPIController) BookChapter(c *gin.Context) {
 
 //News 热门资讯
 func (ctrl *BaseAPIController) News(c *gin.Context) {
-	hotlist.All(false)
 	data := cache.Get(c.Query("type"))
+	if data == "" {
+		hotlist.All(false)
+	}
 	response.JSON(c, gin.H{
 		"data": data,
 	})
