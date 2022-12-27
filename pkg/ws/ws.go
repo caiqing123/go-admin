@@ -13,6 +13,7 @@ import (
 
 	controllers "api/app/http/controllers/api/v1"
 	"api/pkg/book"
+	"api/pkg/cache"
 	"api/pkg/file"
 	"api/pkg/jwt"
 	"api/pkg/logger"
@@ -59,8 +60,9 @@ type BroadCastMessageData struct {
 
 //RequestParameters 请求参数
 type RequestParameters struct {
-	Group      string            `json:"group"`
-	Parameters map[string]string `json:"parameters"`
+	Group      string                 `json:"group"`
+	Parameters map[string]string      `json:"parameters"`
+	Chat       map[string]interface{} `json:"chat"`
 }
 
 // 读信息，从 websocket 连接直接读取数据
@@ -90,6 +92,15 @@ func (c *Client) Read(cxt context.Context) {
 				if content.Parameters["log"] != "" {
 					book.DownloadLog(cxt, content.Parameters["log"], c.Id, c.Group, SendOne)
 				}
+			}
+			if content.Group == "chat" {
+				chat := cache.Get("chat")
+				b, _ := json.Marshal(&chat)
+				var m []map[string]interface{}
+				_ = json.Unmarshal(b, &m)
+				cache.Set("chat", append(m, content.Chat), time.Hour*24*30*12)
+				list, _ := json.Marshal(content.Chat)
+				SendGroup(list, content.Group, "message")
 			}
 		}
 		logger.Printf("client [%s] receive message: %s", c.Id, string(message))
@@ -295,7 +306,7 @@ var WebsocketManager = Manager{
 	clientCount:      0,
 }
 
-var typeWhitelist = []string{"book"}
+var typeWhitelist = []string{"book", "chat"}
 
 // WsClient gin 处理 websocket handler
 func (manager *Manager) WsClient(c *gin.Context) {
@@ -349,6 +360,15 @@ func (manager *Manager) WsClient(c *gin.Context) {
 	if channel == "cron" {
 		file.FileMonitoring(ctx, "storage/cron/"+time.Now().Format("2006-01-02.log"), userId, channel, SendOne)
 	}
+	if channel == "chat" {
+		time.Sleep(200 * time.Millisecond)
+
+		info, _ := json.Marshal(WebsocketManager.Info())
+		SendGroup(info, channel, "info")
+		chat := cache.Get("chat")
+		list, _ := json.Marshal(chat)
+		SendOne(ctx, userId, channel, list)
+	}
 }
 
 func (manager *Manager) UnWsClient(c *gin.Context) {
@@ -376,8 +396,8 @@ func (manager *Manager) UnWsClient(c *gin.Context) {
 	})
 }
 
-func SendGroup(msg []byte) {
-	WebsocketManager.SendGroup("leffss", []byte("{\"code\":200,\"data\":"+string(msg)+"}"))
+func SendGroup(msg []byte, group string, t string) {
+	WebsocketManager.SendGroup(group, []byte("{\"code\":200,\"type\":\""+t+"\",\"data\":"+string(msg)+"}"))
 	logger.Dump(WebsocketManager.Info())
 }
 

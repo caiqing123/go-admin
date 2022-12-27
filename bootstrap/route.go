@@ -21,6 +21,7 @@ func SetupRoute(router *gin.Engine) {
 	// websocket处理
 	go ws.WebsocketManager.Start()
 	go ws.WebsocketManager.SendService()
+	go ws.WebsocketManager.SendGroupService()
 	go ws.WebsocketManager.SendAllService()
 
 	// 注册全局中间件
