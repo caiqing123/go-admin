@@ -1087,7 +1087,7 @@ func All(isUpdate bool) {
 		"ZhiHu",
 		"WeiBo",
 		"DouBan",
-		"TianYa",
+		//"TianYa",
 		"HuPu",
 		"BaiDu",
 		"36Kr",
@@ -1104,7 +1104,7 @@ func All(isUpdate bool) {
 		"Chiphell",
 		"JianDan",
 		"ITHome",
-		"CSDN",
+		//"CSDN",
 	}
 	fmt.Println("开始抓取" + strconv.Itoa(len(allData)) + "种数据类型")
 	group.Add(len(allData))

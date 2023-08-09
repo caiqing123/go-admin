@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"api/pkg/file"
 	"api/pkg/jwt"
 	"api/pkg/logger"
+	"api/pkg/openai"
 	"api/pkg/response"
 )
 
@@ -60,9 +62,21 @@ type BroadCastMessageData struct {
 
 //RequestParameters 请求参数
 type RequestParameters struct {
-	Group      string                 `json:"group"`
-	Parameters map[string]string      `json:"parameters"`
-	Chat       map[string]interface{} `json:"chat"`
+	Group      string            `json:"group"`
+	Parameters map[string]string `json:"parameters"`
+	Chat       Chat              `json:"chat"`
+}
+
+// Volume 卷
+type Chat struct {
+	Content string
+	Time    int
+	Type    string
+	From    struct {
+		AvatarUrl string `json:"avatarUrl"`
+		Id        string `json:"id"`
+		Name      string `json:"name"`
+	}
 }
 
 // 读信息，从 websocket 连接直接读取数据
@@ -96,11 +110,45 @@ func (c *Client) Read(cxt context.Context) {
 			if content.Group == "chat" {
 				chat := cache.Get("chat")
 				b, _ := json.Marshal(&chat)
-				var m []map[string]interface{}
+				var m []Chat
 				_ = json.Unmarshal(b, &m)
 				cache.Set("chat", append(m, content.Chat), time.Hour*24*30*12)
 				list, _ := json.Marshal(content.Chat)
 				SendGroup(list, content.Group, "message")
+				if strings.Contains(content.Chat.Content, "@ai") {
+					msg := strings.Replace(content.Chat.Content, "@ai", "", 1)
+					gpt := openai.NewChatGptTool("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")
+					message := []openai.Gpt3Dot5Message{
+						{
+							Role:    "user",
+							Content: msg,
+						},
+					}
+					res, err := gpt.ChatGPT3Dot5Turbo(message)
+					if err == nil {
+						var ai = Chat{
+							Content: res,
+							Time:    0,
+							Type:    "text",
+							From: struct {
+								AvatarUrl string `json:"avatarUrl"`
+								Id        string `json:"id"`
+								Name      string `json:"name"`
+							}(struct {
+								AvatarUrl string
+								Id        string
+								Name      string
+							}{AvatarUrl: "https://xsgames.co/randomusers/assets/avatars/pixel/0.jpg", Id: "ai", Name: "机器人"}),
+						}
+						chat := cache.Get("chat")
+						b, _ := json.Marshal(&chat)
+						var m []Chat
+						_ = json.Unmarshal(b, &m)
+						cache.Set("chat", append(m, ai), time.Hour*24*30*12)
+						list, _ := json.Marshal(ai)
+						SendGroup(list, content.Group, "message")
+					}
+				}
 			}
 		}
 		logger.Printf("client [%s] receive message: %s", c.Id, string(message))

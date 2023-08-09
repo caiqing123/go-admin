@@ -2,6 +2,9 @@ package book
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -79,3 +82,46 @@ func TestDemoSearch(t *testing.T) {
 //
 //f.Close()
 ////--------------
+
+func TestTxt(t *testing.T) {
+	//生成文件
+	file2Path := "./an-xiao-yao.txt"
+
+	fii, err := os.OpenFile(file2Path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModePerm)
+	if err != nil {
+		panic(err)
+		return
+	}
+	//读取文件列表
+	part_list, err := filepath.Glob("./demo/an-xiao-yao/*.md")
+	if err != nil {
+		panic(err)
+		return
+	}
+	fmt.Printf("要把%v份合并成一个文件%s\n", part_list, file2Path)
+	i := 0
+	for _, v := range part_list {
+		if v == "README.md" {
+			continue
+		}
+		if v == "SUMMARY.md" {
+			continue
+		}
+		f, err := os.OpenFile(v, os.O_RDONLY, os.ModePerm)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		b, err := ioutil.ReadAll(f)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fii.Write([]byte("\n\n" + string(b)))
+		f.Close()
+		i++
+		fmt.Printf("合并%d个\n", i)
+	}
+	fii.Close()
+	fmt.Println("合并成功")
+}

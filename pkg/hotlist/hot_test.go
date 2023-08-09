@@ -7,8 +7,8 @@ import (
 
 func TestFileGet(t *testing.T) {
 
-	spider := Spider{DataType: "BaiDu"}
-	fmt.Println(spider.GetSegmentfault())
+	spider := Spider{DataType: "CSDN"}
+	fmt.Println(spider.GetCSDN())
 	//All()
 
 	//allData := []string{
