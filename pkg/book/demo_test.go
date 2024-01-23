@@ -22,14 +22,14 @@ func TestDemoSearch(t *testing.T) {
 	//	if s.Search == nil {
 	//		continue
 	//	}
-	//	result, err := s.Search("计算")
+	//	result, err := s.Search("我的诡异人生模拟器")
 	//	fmt.Println(err)
 	//	fmt.Println(result)
 	//
 	//}
 
 	//详情
-	result, err := site.BookInfo("http://www.b520.cc/12_12376/")
+	result, err := site.BookInfo("http://www.b520.cc/159_159394/")
 	//fmt.Println(result)
 	fmt.Println(err)
 
@@ -50,7 +50,7 @@ func TestDemoSearch(t *testing.T) {
 	start := time.Now()
 	//err = store.TXTConv(*result, "demo")
 	//err = store.EPUBConv(*result, "demo")
-	err = store.MdConv(*result, "demo")
+	err = store.TXTConv(*result, "demo")
 	fmt.Println(time.Since(start))
 	fmt.Println(err)
 

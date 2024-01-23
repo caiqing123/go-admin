@@ -8,7 +8,7 @@ import (
 )
 
 func TestOpen(t *testing.T) {
-	gpt := NewChatGptTool("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")
+	gpt := NewChatGptTool("")
 	message := []Gpt3Dot5Message{
 		{
 			Role:    openai.ChatMessageRoleUser,
