@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	urls "net/url"
 	"reflect"
@@ -617,7 +618,7 @@ func (spider Spider) GetSegmentfault() []map[string]interface{} {
 }
 
 func (spider Spider) GetHacPai() []map[string]interface{} {
-	url := "https://ld246.com/domain/play"
+	url := "https://ld246.com/"
 	timeout := 5 * time.Second //超时时间5s
 	client := &http.Client{
 		Timeout: timeout,
@@ -769,19 +770,27 @@ func (spider Spider) GetWaterAndWood() []map[string]interface{} {
 // http://nga.cn/
 
 func (spider Spider) GetNGA() []map[string]interface{} {
-	url := "http://nga.cn/"
+	url := "https://bbs.nga.cn/nuke.php?__lib=www_api&__act=hot_post_page&__output=11"
 	timeout := 5 * time.Second //超时时间5s
 	client := &http.Client{
 		Timeout: timeout,
 	}
-	var Body io.Reader
-	request, err := http.NewRequest("GET", url, Body)
+
+	// 创建一个带有指定Content-Type的POST请求
+	Body := &bytes.Buffer{}
+	writer := multipart.NewWriter(Body)
+	// 添加表单字段
+	writer.WriteField("t", "www")
+	// 关闭multipart写入器
+	writer.Close()
+
+	request, err := http.NewRequest("POST", url, Body)
 	if err != nil {
 		fmt.Println("抓取" + spider.DataType + "失败")
 		return []map[string]interface{}{}
 	}
-	request.Header.Add("User-Agent", `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36`)
-	request.Header.Add("Upgrade-Insecure-Requests", `1`)
+	request.Header.Set("Content-Type", writer.FormDataContentType())
+	request.Header.Set("Host", `bbs.nga.cn`)
 	res, err := client.Do(request)
 
 	if err != nil {
@@ -789,26 +798,30 @@ func (spider Spider) GetNGA() []map[string]interface{} {
 		return []map[string]interface{}{}
 	}
 	defer res.Body.Close()
-	//str, _ := ioutil.ReadAll(res.Body)
-	//fmt.Println(string(str))
+	str, _ := ioutil.ReadAll(res.Body)
 	var allData []map[string]interface{}
-	document, err := goquery.NewDocumentFromReader(res.Body)
+
+	type DataUrl struct {
+		Title string `json:"title"`
+		Url   string `json:"url"`
+	}
+	type JSONStruct struct {
+		Data [][]DataUrl `json:"data"`
+	}
+
+	info := &JSONStruct{}
+	err = json.Unmarshal(str, &info)
 	if err != nil {
-		fmt.Println("抓取" + spider.DataType + "失败")
+		fmt.Println("获取json信息失败" + spider.DataType)
 		return []map[string]interface{}{}
 	}
-	document.Find("h2").Each(func(i int, selection *goquery.Selection) {
-		s := selection.Find("a").First()
-		url, boolUrl := s.Attr("href")
-		text := s.Text()
-		if len(text) != 0 {
-			if boolUrl {
-				if len(allData) <= 100 {
-					allData = append(allData, map[string]interface{}{"title": text, "url": url})
-				}
+	if len(info.Data) != 0 {
+		for _, result := range info.Data {
+			for _, val := range result {
+				allData = append(allData, map[string]interface{}{"title": val.Title, "url": val.Url})
 			}
 		}
-	})
+	}
 	return allData
 }
 
@@ -1041,7 +1054,7 @@ func (spider Spider) GetJianDan() []map[string]interface{} {
 	return allData
 }
 
-//GbkToUtf8 部分热榜标题需要转码
+// GbkToUtf8 部分热榜标题需要转码
 func GbkToUtf8(s []byte) ([]byte, error) {
 	reader := transform.NewReader(bytes.NewReader(s), simplifiedchinese.GBK.NewDecoder())
 	d, e := ioutil.ReadAll(reader)
@@ -1051,7 +1064,7 @@ func GbkToUtf8(s []byte) ([]byte, error) {
 	return d, nil
 }
 
-//ExecGetData 执行每个分类数据
+// ExecGetData 执行每个分类数据
 func ExecGetData(spider Spider) {
 	var count = 0
 LOOP:
